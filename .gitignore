@@ -1,0 +1,24 @@
+# Entorno virtual
+.venv/
+venv/
+env/
+
+# Directorio IDE (PyCharm)
+.idea/
+
+# Configuración local de opencode
+.opencode/
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.pytest_cache/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Variables de entorno (posibles secretos)
+.env

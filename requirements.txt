@@ -1,0 +1,2 @@
+# Dependencias Python necesarias para ejecutar el servidor Flask y los
+# módulos de simulación y aprendizaje del agente RL.

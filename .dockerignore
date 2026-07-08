@@ -1,0 +1,2 @@
+# Archivos y carpetas que se excluyen del contexto de build de Docker
+# para reducir el tamaño de la imagen final.
