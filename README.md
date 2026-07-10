@@ -1,24 +1,24 @@
-# Aprendizaje por Refuerzo - Detección de Anomalias
+# Aprendizaje por Refuerzo - Detección de Anomalías
 
-Proyecto didactico que demuestra como un agente de Q-learning aprende a detectar anomalias en sensores de una maquina industrial mediante prueba y error, sin necesidad de datos etiquetados previamente.
+Proyecto didáctico que demuestra cómo un agente de Q-learning aprende a detectar anomalías en sensores de una máquina industrial mediante prueba y error, sin necesidad de datos etiquetados previamente.
 
-Nota adicional: La documentacion del proyecto es estilo `docstring`, embebido en los archivos logicos
+Nota adicional: La documentación del proyecto es estilo `docstring`, embebido en los archivos lógicos
 
 ### Estudiante
 - Francisco Lizama | fran416
 
 ---
 
-## Tecnologias utilizadas
+## Tecnologías utilizadas
 
 - **Python 3.12** — Lenguaje principal
 - **Flask 3.0** — Servidor web
-- **Gunicorn 21.2** — Servidor WSGI para produccion
-- **NumPy 1.24** — Tabla Q y operaciones matematicas
-- **Pandas 2.0** — Analisis de datos historicos
-- **Plotly 5.18** — Graficos interactivos
-- **HTMX 1.9** — Actualizaciones sin recargar la pagina
-- **Docker** — Contenedorizacion
+- **Gunicorn 21.2** — Servidor WSGI para producción
+- **NumPy 1.24** — Tabla Q y operaciones matemáticas
+- **Pandas 2.0** — Análisis de datos históricos
+- **Plotly 5.18** — Gráficos interactivos
+- **HTMX 1.9** — Actualizaciones sin recargar la página
+- **Docker** — Contenedorización
 
 ## Dependencias
 
@@ -32,7 +32,7 @@ plotly>=5.18
 
 ## Arquitectura
 
-La aplicacion se divide en 3 modulos que funcionan juntos:
+La aplicación se divide en 3 módulos que funcionan juntos:
 
 ```
 rl-app/
@@ -40,16 +40,16 @@ rl-app/
 ├── agente/
 │   └── aprendizaje.py  ← Q-learning (tabla Q, ε-greedy, Bellman)
 ├── simulacion/
-│   ├── entorno.py      ← Maquina industrial con 4 sensores
+│   ├── entorno.py      ← Máquina industrial con 4 sensores
 │   └── motor.py        ← Orquestador de entrenamiento
 └── web/
     ├── static/         ← CSS, JavaScript
-    └── templates/      ← Paginas HTML con Jinja2
+    └── templates/      ← Páginas HTML con Jinja2
 ```
 
 El backend RL y el servidor web viven en el mismo proceso. No hay base de datos ni servicios externos.
 
-## Como ejecutar
+## Cómo ejecutar
 
 El proyecto fue desarrollado y probado en Linux, específicamente `Ubuntu 24.04.4 LTS` por lo que se recomienda encarecidamente su ejecución con Docker para evitar posibles incompatibilidades que puedan surgir en otros sistemas operativos.
 
@@ -58,7 +58,7 @@ El proyecto fue desarrollado y probado en Linux, específicamente `Ubuntu 24.04.
 #### Requisitos técnicos:
 - Docker Engine version 29.x o superior
 - Docker Compose (V2, integrado de forma nativa en las versiones modernas de Docker)
-- Opcional: Docker Desktop o Podman Desktop, esto para incializar el contenedor mediante una interfaz gráfica de usuario (GUI)
+- Opcional: Docker Desktop o Podman Desktop, esto para inicializar el contenedor mediante una interfaz gráfica de usuario (GUI)
 
 ```
 # Construir e iniciar
@@ -94,19 +94,19 @@ Abrir en el navegador: `http://localhost:5000`
 ### Para detener
 
 ```
-# Si esta corriendo con Docker
+# Si está corriendo con Docker
 docker compose down
 
-# Si esta corriendo con Python local
+# Si está corriendo con Python local
 Ctrl + C
 ```
 
-## Paginas del proyecto
+## Páginas del proyecto
 
-| Ruta | Pagina |
+| Ruta | Página |
 |------|--------|
 | `/` | Inicio - Portada del proyecto |
 | `/conceptos` | Conceptos - Diccionario visual de RL |
-| `/simulacion` | Simulacion - Entrena al agente paso a paso |
-| `/visualizaciones` | Visualizaciones - Graficos interactivos |
-| `/referencias` | Referencias - Bibliografia y conclusiones |
+| `/simulacion` | Simulación - Entrena al agente paso a paso |
+| `/visualizaciones` | Visualizaciones - Gráficos interactivos |
+| `/referencias` | Referencias - Bibliografía y conclusiones |
