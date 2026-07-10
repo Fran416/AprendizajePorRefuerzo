@@ -58,11 +58,11 @@ class EntornoMaquina:
         max_pasos (int): Máximo de pasos por episodio.
     """
 
-    def __init__(self, max_pasos=30):
+    def __init__(self, max_pasos=10):
         """Inicializa el entorno en estado neutro.
 
         Args:
-            max_pasos: Máximo de pasos por episodio (por defecto 30).
+            max_pasos: Máximo de pasos por episodio (por defecto 10).
         """
         self.temperatura = 0.0
         self.vibracion = 0.0
@@ -214,4 +214,27 @@ class EntornoMaquina:
             "etiqueta_real": self.etiqueta_real,
             "estado_texto": "Normal" if self.etiqueta_real == 0 else "Anómalo",
             "tipo_anomalia": self.tipo_anomalia or "—"
+        }
+
+    def obtener_lecturas_demo(self):
+        """Genera lecturas de sensores aleatorias para visualización en vivo.
+
+        Crea un estado demo independiente sin modificar el estado real del
+        entorno en el que el agente está entrenando. Útil para el panel de
+        monitoreo que se actualiza cada 2 segundos.
+
+        Returns:
+            dict: Lecturas de sensores con etiqueta real y estado texto,
+                  simulando una máquina industrial en operación.
+        """
+        demo = EntornoMaquina(max_pasos=self.max_pasos)
+        demo._generar_estado()
+        return {
+            "temperatura": round(demo.temperatura, 4),
+            "vibracion": round(demo.vibracion, 4),
+            "presion": round(demo.presion, 4),
+            "rpm": round(demo.rpm, 4),
+            "etiqueta_real": demo.etiqueta_real,
+            "estado_texto": "Normal" if demo.etiqueta_real == 0 else "Anómalo",
+            "tipo_anomalia": demo.tipo_anomalia or "—"
         }

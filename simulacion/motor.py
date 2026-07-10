@@ -61,6 +61,7 @@ class MotorSimulacion:
             self.entorno.rpm
         )
         self.recompensa_ep_actual = 0
+        self.historial_precision = []  # lista de dicts: {"paso": N, "precision": X.X}
 
     def entrenar(self, episodios):
         """Ejecuta el entrenamiento del agente durante N episodios.
@@ -206,6 +207,9 @@ class MotorSimulacion:
         else:
             self.fn += 1
 
+        # Registrar precisión en intervalos adaptativos según total de pasos
+        self._registrar_precision_si_corresponde()
+
     def _calcular_precision(self):
         """Calcula la precisión global del agente.
 
@@ -215,6 +219,39 @@ class MotorSimulacion:
         if self.total_acciones == 0:
             return 0.0
         return round((self.aciertos / self.total_acciones) * 100, 2)
+
+    def _determinar_intervalo_precision(self):
+        """Determina cada cuántos pasos registrar la precisión según el total acumulado.
+
+        La agrupación es adaptativa: a más pasos, menor frecuencia de registro
+        para mantener el gráfico legible con aproximadamente 20-50 puntos.
+
+        Returns:
+            int: Número de pasos entre cada registro de precisión.
+        """
+        total = self.total_acciones
+        if total < 200:
+            return 10
+        elif total < 500:
+            return 25
+        elif total < 2000:
+            return 100
+        elif total < 10000:
+            return 500
+        else:
+            return 1000
+
+    def _registrar_precision_si_corresponde(self):
+        """Registra la precisión actual si se alcanzó el intervalo adaptativo."""
+        paso_actual = self.total_acciones
+        intervalo = self._determinar_intervalo_precision()
+        if paso_actual % intervalo == 0:
+            # Evitar duplicados si ya se registró este paso
+            if not self.historial_precision or self.historial_precision[-1]["paso"] != paso_actual:
+                self.historial_precision.append({
+                    "paso": paso_actual,
+                    "precision": self._calcular_precision()
+                })
 
     def obtener_metricas(self):
         """Retorna las métricas actuales de la simulación.
@@ -233,7 +270,9 @@ class MotorSimulacion:
             "fn": self.fn,
             "aciertos": self.aciertos,
             "total_acciones": self.total_acciones,
-            "ultimas_recompensas": self.historial_recompensas[-20:]
+            "ultimas_recompensas": self.historial_recompensas[-20:],
+            "historial_precision": self.historial_precision[-200:],
+            "pasos_por_episodio": 10
         }
 
     def obtener_historial_completo(self):
@@ -261,6 +300,7 @@ class MotorSimulacion:
         self.fp = 0
         self.fn = 0
         self.recompensa_ep_actual = 0
+        self.historial_precision = []
         # Sincronizar estado_actual con el entorno reiniciado
         self.estado_actual = self.agente.discretizar_estado(
             self.entorno.temperatura,

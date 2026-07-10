@@ -21,17 +21,17 @@ class QLearning:
         epsilon (float): Tasa de exploración actual.
         epsilon_min (float): Tasa de exploración mínima.
         epsilon_decay (float): Factor de decaimiento de epsilon por episodio.
-        n_estados (int): Número de estados discretos.
+        n_estados (int): Número de estados discretos (625 con 5 niveles por sensor).
         n_acciones (int): Número de acciones posibles.
         historial_recompensas (list): Recompensa acumulada por episodio.
     """
 
-    def __init__(self, n_estados=100, n_acciones=2, alpha=0.1, gamma=0.9,
+    def __init__(self, n_estados=625, n_acciones=2, alpha=0.1, gamma=0.9,
                  epsilon=1.0, epsilon_min=0.01, epsilon_decay=0.995):
         """Inicializa el agente con la tabla Q en ceros y los hiperparámetros.
 
         Args:
-            n_estados: Número de estados discretos (por defecto 100).
+            n_estados: Número de estados discretos (por defecto 625).
             n_acciones: Número de acciones (0=normal, 1=anómalo).
             alpha: Tasa de aprendizaje.
             gamma: Factor de descuento.
@@ -52,9 +52,9 @@ class QLearning:
     def discretizar_estado(self, temperatura, vibracion, presion, rpm):
         """Convierte las lecturas de los 4 sensores en un índice de estado.
 
-        Cada sensor se discretiza en 3 niveles (bajo=0, medio=1, alto=2).
-        El estado final se codifica en base 3: t*27 + v*9 + p*3 + r,
-        generando 81 estados únicos (0-80) dentro del rango de la tabla Q.
+        Cada sensor se discretiza en 5 niveles (0-4) usando truncamiento.
+        El estado final se codifica en base 5: t*125 + v*25 + p*5 + r,
+        generando hasta 625 estados únicos (0-624).
 
         Args:
             temperatura: Lectura normalizada de temperatura (0.0-1.0).
@@ -63,13 +63,13 @@ class QLearning:
             rpm: Lectura normalizada de RPM (0.0-1.0).
 
         Returns:
-            int: Índice del estado discretizado (0-80).
+            int: Índice del estado discretizado (0-624).
         """
-        t = min(int(temperatura * 3), 2)
-        v = min(int(vibracion * 3), 2)
-        p = min(int(presion * 3), 2)
-        r = min(int(rpm * 3), 2)
-        return t * 27 + v * 9 + p * 3 + r
+        t = min(int(temperatura * 5), 4)
+        v = min(int(vibracion * 5), 4)
+        p = min(int(presion * 5), 4)
+        r = min(int(rpm * 5), 4)
+        return t * 125 + v * 25 + p * 5 + r
 
     def elegir_accion(self, estado):
         """Selecciona una acción usando la política epsilon-greedy.
