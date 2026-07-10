@@ -549,3 +549,770 @@ img {
         height: 300px;
     }
 }
+
+/* =============================================================================
+   ESTILOS ADICIONALES — Diagrama RL, Step Cards, Explore Cards, Conceptos
+   ============================================================================= */
+
+/* ---- Animaciones ---- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.section,
+.hero,
+.concepto-card,
+.step-card,
+.explore-card,
+.rl-diagram {
+    animation: fadeInUp 0.6s ease both;
+}
+
+.section:nth-child(2) { animation-delay: 0.1s; }
+.section:nth-child(3) { animation-delay: 0.2s; }
+.section:nth-child(4) { animation-delay: 0.3s; }
+.concepto-card:nth-child(1) { animation-delay: 0.05s; }
+.concepto-card:nth-child(2) { animation-delay: 0.1s; }
+.concepto-card:nth-child(3) { animation-delay: 0.15s; }
+.concepto-card:nth-child(4) { animation-delay: 0.2s; }
+.concepto-card:nth-child(5) { animation-delay: 0.25s; }
+.concepto-card:nth-child(6) { animation-delay: 0.3s; }
+.concepto-card:nth-child(7) { animation-delay: 0.35s; }
+.concepto-card:nth-child(8) { animation-delay: 0.4s; }
+.concepto-card:nth-child(9) { animation-delay: 0.45s; }
+.concepto-card:nth-child(10) { animation-delay: 0.5s; }
+
+/* ---- Section content ---- */
+.section-content {
+    max-width: 800px;
+    margin: 0 auto 1.5rem auto;
+}
+
+.section-content p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--color-texto-tenue);
+    margin-bottom: 1rem;
+}
+
+/* ---- Diagrama de ciclo RL (CSS puro) ---- */
+.rl-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 2rem 1rem;
+    margin: 2rem auto;
+    max-width: 900px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--border-radius);
+}
+
+.rl-diagram-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 90px;
+    position: relative;
+}
+
+.rl-diagram-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 3px solid var(--diagram-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    background: rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.rl-diagram-circle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px var(--diagram-color);
+}
+
+.rl-diagram-label {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-texto);
+}
+
+.rl-diagram-desc {
+    font-size: 0.7rem;
+    color: var(--color-texto-tenue);
+    text-align: center;
+}
+
+.rl-diagram-arrow {
+    font-size: 1.8rem;
+    color: var(--color-texto-tenue);
+    padding: 0 0.25rem;
+    user-select: none;
+    line-height: 1;
+}
+
+.rl-diagram-arrow-feedback {
+    color: var(--color-advertencia);
+}
+
+.rl-diagram-item-feedback .rl-diagram-circle {
+    border-color: var(--color-advertencia);
+}
+
+/* Grid de 4 elementos clave (agente, entorno, acción, recompensa) */
+.elementos-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    max-width: 800px;
+    margin: 2rem auto 0 auto;
+}
+
+.elementos-grid .concepto-card {
+    text-align: center;
+    padding: 1.5rem 1rem;
+}
+
+.concepto-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.elementos-grid .concepto-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+}
+
+.elementos-grid .concepto-card p {
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+/* ---- Cards numeradas de pasos ---- */
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.step-card {
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.step-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--color-accento);
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
+}
+
+.step-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border-color: var(--color-accento);
+}
+
+.step-card:hover::before {
+    opacity: 1;
+}
+
+.step-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(90, 125, 154, 0.15);
+    color: var(--color-accento);
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    border: 2px solid var(--color-accento);
+}
+
+.step-title {
+    font-size: 1rem;
+    color: var(--color-texto);
+    margin-bottom: 0.5rem;
+}
+
+.step-desc {
+    font-size: 0.85rem;
+    color: var(--color-texto-tenue);
+    line-height: 1.5;
+}
+
+/* ---- Cards de exploración (sección 4) ---- */
+.explore-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.explore-card {
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.explore-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5);
+    border-color: var(--color-accento);
+}
+
+.explore-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.explore-card:hover .explore-icon {
+    transform: scale(1.15);
+}
+
+.explore-card h3 {
+    font-size: 1.1rem;
+    color: var(--color-texto);
+    margin-bottom: 0.5rem;
+}
+
+.explore-card p {
+    font-size: 0.85rem;
+    color: var(--color-texto-tenue);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    flex: 1;
+}
+
+.explore-link {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    background: transparent;
+    color: var(--color-accento);
+    border: 1px solid var(--color-accento);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.explore-link:hover {
+    background: var(--color-accento);
+    color: var(--color-sidebar);
+}
+
+/* ---- Acordeón de conceptos ---- */
+.conceptos-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.concepto-acordeon {
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+}
+
+.concepto-acordeon:hover {
+    border-color: var(--color-accento);
+}
+
+.concepto-acordeon.open {
+    border-color: var(--color-accento);
+}
+
+/* ---- Encabezado clickable ---- */
+.concepto-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    gap: 1rem;
+    transition: background 0.2s ease;
+}
+
+.concepto-header:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.concepto-header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.concepto-header-left .concepto-icon {
+    font-size: 1.8rem;
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(90, 125, 154, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.concepto-acordeon.open .concepto-icon {
+    transform: scale(1.1);
+}
+
+.concepto-header-left h3 {
+    font-size: 1.05rem;
+    color: var(--color-texto);
+    margin: 0 0 0.2rem 0;
+}
+
+.concepto-resumen {
+    font-size: 0.82rem;
+    color: var(--color-texto-tenue);
+    margin: 0;
+    line-height: 1.4;
+}
+
+/* ---- Indicador toggle (+/−) ---- */
+.concepto-toggle {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: var(--color-accento);
+    flex-shrink: 0;
+    width: 32px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.concepto-acordeon.open .concepto-toggle {
+    transform: rotate(90deg);
+}
+
+/* ---- Cuerpo expandible ---- */
+.concepto-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+    padding: 0 1.25rem;
+}
+
+.concepto-acordeon.open .concepto-body {
+    max-height: 800px;
+    padding: 0 1.25rem 1.25rem 1.25rem;
+}
+
+/* Contenido interno del cuerpo */
+.concepto-definicion {
+    margin-bottom: 0.75rem;
+}
+
+.concepto-definicion p {
+    font-size: 0.9rem;
+    line-height: 1.65;
+    color: var(--color-texto-tenue);
+}
+
+.concepto-ejemplo {
+    background: rgba(90, 125, 154, 0.06);
+    border-left: 3px solid var(--color-accento);
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 0 6px 6px 0;
+}
+
+.concepto-ejemplo p {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--color-texto-tenue);
+    margin-top: 0.3rem;
+}
+
+.concepto-dato {
+    background: rgba(138, 122, 58, 0.06);
+    border-left: 3px solid var(--color-advertencia);
+    padding: 0.75rem 1rem;
+    border-radius: 0 6px 6px 0;
+}
+
+.concepto-dato p {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--color-texto-tenue);
+    margin-top: 0.3rem;
+}
+
+/* ---- Badge / etiquetas ---- */
+.badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    letter-spacing: 0.3px;
+}
+
+.badge-ejemplo {
+    background: rgba(90, 125, 154, 0.15);
+    color: var(--color-accento);
+}
+
+.badge-dato {
+    background: rgba(138, 122, 58, 0.15);
+    color: var(--color-advertencia);
+}
+
+/* ---- Fórmula de Bellman ---- */
+.formula-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--color-borde);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 1rem 0;
+    overflow-x: auto;
+}
+
+.formula-box code {
+    font-family: 'Courier New', 'Consolas', monospace;
+    font-size: 1rem;
+    color: var(--color-accento);
+    white-space: nowrap;
+    line-height: 1.6;
+}
+
+.formula-vars {
+    list-style: none;
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+}
+
+.formula-vars li {
+    font-size: 0.8rem;
+    color: var(--color-texto-tenue);
+    padding: 0.2rem 0;
+    line-height: 1.5;
+}
+
+.formula-vars li .var {
+    font-family: 'Courier New', 'Consolas', monospace;
+    color: var(--color-advertencia);
+    font-weight: 600;
+}
+
+/* ---- Tablas de datos técnicos ---- */
+.tabla-anomalias {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    color: var(--color-texto-tenue);
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.tabla-anomalias th {
+    background: rgba(90, 125, 154, 0.15);
+    color: var(--color-texto);
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tabla-anomalias td {
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.tabla-anomalias tr:last-child td {
+    border-bottom: none;
+}
+
+.tabla-anomalias tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* ---- Matriz de Confusión visual ---- */
+.confusion-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 4px;
+    font-size: 0.82rem;
+}
+
+.confusion-table td {
+    padding: 0;
+}
+
+.cm-cell {
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+    min-width: 120px;
+}
+
+.cm-cell strong {
+    display: block;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.cm-valor {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0.25rem 0;
+    font-family: 'Courier New', monospace;
+}
+
+.cm-desc {
+    display: block;
+    font-size: 0.7rem;
+    opacity: 0.8;
+}
+
+.cm-tp { background: rgba(74, 122, 90, 0.2); border: 1px solid rgba(74, 122, 90, 0.4); }
+.cm-tp strong { color: var(--color-exito); }
+.cm-tp .cm-valor { color: var(--color-exito); }
+
+.cm-tn { background: rgba(90, 125, 154, 0.15); border: 1px solid rgba(90, 125, 154, 0.3); }
+.cm-tn strong { color: var(--color-accento); }
+.cm-tn .cm-valor { color: var(--color-accento); }
+
+.cm-fp { background: rgba(138, 122, 58, 0.15); border: 1px solid rgba(138, 122, 58, 0.3); }
+.cm-fp strong { color: var(--color-advertencia); }
+.cm-fp .cm-valor { color: var(--color-advertencia); }
+
+.cm-fn { background: rgba(122, 74, 74, 0.2); border: 1px solid rgba(122, 74, 74, 0.4); }
+.cm-fn strong { color: var(--color-peligro); }
+.cm-fn .cm-valor { color: var(--color-peligro); }
+
+/* ---- Headings dentro del cuerpo del acordeón ---- */
+.concepto-body h4 {
+    font-size: 0.95rem;
+    color: var(--color-texto);
+    margin: 1rem 0 0.5rem 0;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--color-borde);
+}
+
+.concepto-body ul,
+.concepto-body ol {
+    padding-left: 1.25rem;
+    margin: 0.5rem 0;
+    color: var(--color-texto-tenue);
+    font-size: 0.88rem;
+    line-height: 1.6;
+}
+
+.concepto-body li {
+    margin-bottom: 0.25rem;
+}
+
+.concepto-body code {
+    font-family: 'Courier New', 'Consolas', monospace;
+    color: var(--color-accento);
+    background: rgba(0, 0, 0, 0.25);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    font-size: 0.85rem;
+}
+
+/* ---- Gráficos inline ---- */
+.inline-chart {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    border: 1px solid var(--color-borde);
+}
+
+/* ---- Enlaces entre conceptos relacionados ---- */
+.concepto-relacion {
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-borde);
+    font-size: 0.82rem;
+    color: var(--color-texto-tenue);
+}
+
+.concepto-relacion a {
+    color: var(--color-accento);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.concepto-relacion a:hover {
+    color: var(--color-accento-hover);
+    text-decoration: underline;
+}
+
+/* ---- Responsive: tablet (768px - 1024px) ---- */
+@media (max-width: 1024px) {
+    .steps-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .explore-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rl-diagram {
+        padding: 1.5rem 0.5rem;
+        gap: 0.25rem;
+    }
+
+    .rl-diagram-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 1.3rem;
+    }
+
+    .rl-diagram-arrow {
+        font-size: 1.3rem;
+    }
+}
+
+/* ---- Responsive: móvil (< 768px) ---- */
+@media (max-width: 768px) {
+    .rl-diagram {
+        flex-direction: column;
+        gap: 0.35rem;
+        padding: 1.5rem 0.5rem;
+    }
+
+    .rl-diagram-arrow {
+        transform: rotate(90deg);
+        font-size: 1.2rem;
+        padding: 0.15rem 0;
+    }
+
+    .rl-diagram-arrow-feedback {
+        transform: rotate(-90deg);
+    }
+
+    .rl-diagram-circle {
+        width: 55px;
+        height: 55px;
+        font-size: 1.2rem;
+    }
+
+    .elementos-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .steps-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .explore-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Acordeón responsive */
+    .concepto-header {
+        padding: 0.85rem 1rem;
+    }
+
+    .concepto-header-left {
+        gap: 0.75rem;
+    }
+
+    .concepto-header-left .concepto-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1.4rem;
+    }
+
+    .concepto-header-left h3 {
+        font-size: 0.95rem;
+    }
+
+    .concepto-resumen {
+        font-size: 0.78rem;
+    }
+
+    .concepto-body {
+        padding: 0 1rem;
+    }
+
+    .concepto-acordeon.open .concepto-body {
+        padding: 0 1rem 1rem 1rem;
+    }
+
+    /* Demo visual responsive */
+    .conceptos-accordion + .section [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    .confusion-table {
+        font-size: 0.72rem;
+    }
+
+    .cm-cell {
+        min-width: 80px;
+        padding: 0.5rem 0.25rem;
+    }
+
+    .cm-valor {
+        font-size: 1rem;
+    }
+
+    .tabla-anomalias {
+        font-size: 0.72rem;
+    }
+
+    .tabla-anomalias th,
+    .tabla-anomalias td {
+        padding: 0.35rem 0.5rem;
+    }
+}

@@ -1,45 +1,998 @@
 {% extends "base.html" %}
 {% block title %}Conceptos - RL Detección de Anomalías{% endblock %}
 {% block content %}
-<h1 class="page-title">Conceptos Fundamentales</h1>
-<p class="page-subtitle">Diccionario visual de los conceptos clave del Aprendizaje por Refuerzo.</p>
 
-<div class="conceptos-grid">
-    <div class="concepto-card">
-        <h3>Agente</h3>
-        <p>Entidad que aprende a tomar decisiones mediante interacción con el entorno. En este proyecto, el agente es un clasificador que decide si una lectura de sensores es normal o anómala.</p>
+<h1 class="page-title">Conceptos Fundamentales</h1>
+<p class="page-subtitle">
+    Exploración técnica y visual de cada componente del Aprendizaje por Refuerzo aplicado a la detección de anomalías.
+    Haz clic en cada concepto para expandir la información detallada con gráficos y ejemplos del proyecto.
+</p>
+
+<div class="conceptos-accordion">
+
+    <!-- ====================================================================== -->
+    <!-- CONCEPTO 1: EL AGENTE Q-LEARNING                                       -->
+    <!-- ====================================================================== -->
+    <div class="concepto-acordeon">
+        <div class="concepto-header" onclick="toggleConcepto(this)">
+            <div class="concepto-header-left">
+                <span class="concepto-icon">🤖</span>
+                <div>
+                    <h3>El Agente Q-learning</h3>
+                    <p class="concepto-resumen">
+                        El agente es el núcleo del sistema: un clasificador que aprende por refuerzo. Mantiene una <strong>tabla Q</strong> de 625×2 que asigna un valor numérico a cada par (estado, acción). En cada paso, consulta la tabla, elige una acción (normal o anómalo) mediante la política ε-greedy, recibe retroalimentación del entorno y actualiza sus estimaciones. Su objetivo es maximizar la recompensa acumulada a lo largo del tiempo, refinando progresivamente su política de clasificación.
+                    </p>
+                </div>
+            </div>
+            <span class="concepto-toggle">+</span>
+        </div>
+        <div class="concepto-body">
+            <div class="concepto-definicion">
+                <p>El <strong>agente de Q-learning tabular</strong> es el componente central del proyecto. Se implementa en la clase <code>QLearning</code> del módulo <code>agente/aprendizaje.py</code> y mantiene una tabla de valores Q como un array NumPy de forma <code>(n_estados, n_acciones)</code>.</p>
+
+                <h4>Estructura interna del agente</h4>
+                <ul>
+                    <li><strong>Tabla Q</strong> — Matriz NumPy de 625×2. Inicializada en ceros. Cada celda Q(s,a) almacena la recompensa futura esperada al tomar la acción <em>a</em> en el estado <em>s</em>.</li>
+                    <li><strong>Hiperparámetros</strong> — α (learning rate) = 0.1, γ (discount factor) = 0.9, ε inicial = 1.0, ε mínimo = 0.01, decaimiento = 0.995.</li>
+                    <li><strong>Función de discretización</strong> — Convierte 4 sensores continuos [0.0, 1.0] en un índice entero único usando codificación en base 5:</li>
+                </ul>
+                <div class="formula-box" style="margin: 0.5rem 0 1rem 0;">
+                    <code>estado = t×125 + v×25 + p×5 + r &nbsp;donde&nbsp; t,v,p,r ∈ {0,1,2,3,4}</code>
+                </div>
+            </div>
+            <div class="concepto-ejemplo">
+                <span class="badge badge-ejemplo">📌 Ciclo de operación</span>
+                <p>1. El agente recibe el estado discretizado <em>s</em> → 2. Consulta la fila Q[s] y elige acción <em>a</em> (ε-greedy) → 3. Recibe recompensa <em>r</em> y nuevo estado <em>s'</em> → 4. Actualiza Q[s][a] con Bellman → 5. Si el episodio terminó, decae ε → repetir.</p>
+            </div>
+            <div class="concepto-dato">
+                <span class="badge badge-dato">💡 Detalle técnico</span>
+                <p>La tabla Q se mantiene en memoria mientras el servidor Flask esté corriendo. Cada reinicio del agente (botón "Reiniciar") la restablece a ceros con ε = 1.0, comenzando el aprendizaje desde cero. Con ~500 episodios de entrenamiento, la precisión suele alcanzar 65-75% y la sensibilidad (TPR) alrededor de 70%.</p>
+            </div>
+            <p class="concepto-relacion">🔗 Conceptos relacionados: <a href="#" onclick="abrirConcepto(7)">Ecuación de Bellman</a>, <a href="#" onclick="abrirConcepto(4)">Política ε-greedy</a>, <a href="#" onclick="abrirConcepto(6)">Exploración vs Explotación</a></p>
+        </div>
     </div>
-    <div class="concepto-card">
-        <h3>Entorno</h3>
-        <p>Sistema con el que el agente interactúa. En esta aplicación, el entorno simula una máquina industrial con sensores de temperatura, vibración, presión y RPM.</p>
+
+    <!-- ====================================================================== -->
+    <!-- CONCEPTO 2: ENTORNO Y ESTADOS                                          -->
+    <!-- ====================================================================== -->
+    <div class="concepto-acordeon">
+        <div class="concepto-header" onclick="toggleConcepto(this)">
+            <div class="concepto-header-left">
+                <span class="concepto-icon">🌐</span>
+                <div>
+                    <h3>Entorno y Estados</h3>
+                    <p class="concepto-resumen">
+                        El entorno simula una máquina industrial con <strong>4 sensores</strong>: temperatura (rango normal 0.15–0.65), vibración (0.10–0.55), presión (0.20–0.60) y RPM (0.15–0.70). Cada sensor se discretiza en 5 niveles, generando <strong>5⁴ = 625 estados únicos</strong>. El entorno produce estados normales el 75% del tiempo y anómalos el 25%, simulando 6 tipos distintos de fallas mecánicas.
+                    </p>
+                </div>
+            </div>
+            <span class="concepto-toggle">+</span>
+        </div>
+        <div class="concepto-body">
+            <div class="concepto-definicion">
+                <p>El <strong>entorno</strong> (clase <code>EntornoMaquina</code> en <code>simulacion/entorno.py</code>) es el mundo con el que el agente interactúa. No revela sus reglas internas al agente — es un entorno <strong>libre de modelo</strong> (model-free).</p>
+
+                <h4>Generación de estados</h4>
+                <p><strong>Estados normales (75%):</strong> Cada sensor se muestrea de una distribución normal centrada en la media de su rango seguro, con desviación estándar calculada para que el 99.7% de los valores caigan dentro del rango (regla 3-sigma).</p>
+
+                <p><strong>Estados anómalos (25%):</strong> Se parte de un estado normal base y se desvían sensores específicos según el tipo de anomalía:</p>
+
+                <div style="overflow-x:auto; margin: 0.75rem 0;">
+                    <table class="tabla-anomalias">
+                        <tr>
+                            <th>Anomalía</th>
+                            <th>Sensores afectados</th>
+                            <th>Factor</th>
+                            <th>Rango resultante</th>
+                        </tr>
+                        <tr><td>Sobrecalentamiento</td><td>Temperatura</td><td>1.3×</td><td>[0.65, 1.0]</td></tr>
+                        <tr><td>Vibración excesiva</td><td>Vibración</td><td>1.4×</td><td>[0.65, 1.0]</td></tr>
+                        <tr><td>Sobrepresión</td><td>Presión</td><td>1.3×</td><td>[0.65, 1.0]</td></tr>
+                        <tr><td>Sobrevelocidad</td><td>RPM</td><td>1.3×</td><td>[0.65, 1.0]</td></tr>
+                        <tr><td>Múltiples fallos</td><td>Temp + Pres + RPM</td><td>1.2×</td><td>[0.65, 1.0]</td></tr>
+                        <tr><td>Vibración + temperatura</td><td>Vib + Temp</td><td>1.25×</td><td>[0.65, 1.0]</td></tr>
+                    </table>
+                </div>
+            </div>
+            <div class="concepto-ejemplo">
+                <span class="badge badge-ejemplo">📌 Discretización en acción</span>
+                <p>Una lectura de sensores <code>temp=0.72, vib=0.31, pres=0.88, rpm=0.15</code> se discretiza como: <code>t=min(int(0.72×5),4)=3, v=min(int(0.31×5),4)=1, p=min(int(0.88×5),4)=4, r=min(int(0.15×5),4)=0</code> → estado = 3×125 + 1×25 + 4×5 + 0 = <strong>420</strong>.</p>
+            </div>
+            <div class="concepto-dato">
+                <span class="badge badge-dato">💡 Implicación técnica</span>
+                <p>La discretización en 5 niveles es un compromiso entre granularidad y tamaño de la tabla Q. Con 3 niveles tendríamos solo 81 estados (menos preciso); con 10 niveles tendríamos 10.000 estados (tabla enorme, aprendizaje muy lento). La elección de 5 niveles permite ~625 estados, un balance adecuado para un aprendizaje eficiente en pocos cientos de episodios.</p>
+            </div>
+            <p class="concepto-relacion">🔗 Conceptos relacionados: <a href="#" onclick="abrirConcepto(1)">El Agente Q-learning</a>, <a href="#" onclick="abrirConcepto(3)">Acciones y Recompensas</a></p>
+        </div>
     </div>
-    <div class="concepto-card">
-        <h3>Estado</h3>
-        <p>Representación del entorno en un instante dado. El estado se construye a partir de las cuatro lecturas de sensores discretizadas en niveles bajo, medio y alto.</p>
+
+    <!-- ====================================================================== -->
+    <!-- CONCEPTO 3: ACCIONES Y RECOMPENSAS                                     -->
+    <!-- ====================================================================== -->
+    <div class="concepto-acordeon">
+        <div class="concepto-header" onclick="toggleConcepto(this)">
+            <div class="concepto-header-left">
+                <span class="concepto-icon">⚡</span>
+                <div>
+                    <h3>Acciones y Recompensas</h3>
+                    <p class="concepto-resumen">
+                        El agente dispone de un <strong>espacio de acciones binario</strong>: 0 = clasificar como normal, 1 = clasificar como anómalo. Por cada acción recibe una recompensa según la <strong>matriz de confusión</strong> con valores asimétricos: TP = +10 (anomalía detectada), TN = +1 (normal bien clasificado), FP = −5 (falsa alarma), FN = −20 (anomalía no detectada). Esta asimetría refleja que en un entorno industrial es mucho más costoso dejar pasar una anomalía que generar una falsa alarma.
+                    </p>
+                </div>
+            </div>
+            <span class="concepto-toggle">+</span>
+        </div>
+        <div class="concepto-body">
+            <div class="concepto-definicion">
+                <p>Las <strong>acciones</strong> son la interfaz entre el agente y el entorno. Aunque el espacio es pequeño (2 opciones), el agente debe aprender cuál es la acción correcta para cada uno de los 625 estados posibles.</p>
+
+                <h4>Estructura de recompensas</h4>
+                <p>El diseño de recompensas sigue el principio de <strong>reward shaping</strong> con asimetría de costos. Los valores están definidos en la constante <code>RECOMPENSAS</code> del módulo <code>simulacion/entorno.py</code>:</p>
+
+                <div id="recompensas-chart" class="inline-chart" style="height:220px; margin: 0.75rem 0;"></div>
+
+                <p style="margin-top:0.5rem;">El cálculo de la recompensa en cada paso sigue esta lógica:</p>
+                <div class="formula-box" style="margin: 0.5rem 0;">
+                    <code>recompensa = RECOMPENSAS["tp"]  si accion==1 and etiqueta==1<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= RECOMPENSAS["tn"]  si accion==0 and etiqueta==0<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= RECOMPENSAS["fp"]  si accion==1 and etiqueta==0<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= RECOMPENSAS["fn"]  si accion==0 and etiqueta==1</code>
+                </div>
+            </div>
+            <div class="concepto-ejemplo">
+                <span class="badge badge-ejemplo">📌 Comportamiento esperado</span>
+                <p>El agente aprende rápidamente a evitar FN (no detectar anomalías) porque la penalización de −20 es muy alta. También aprende que FP (falsas alarmas) son menos graves (−5). Esto produce un clasificador <strong>conservador</strong>: ante la duda, prefiere clasificar como anómalo, lo cual es el comportamiento deseado en un sistema industrial real.</p>
+            </div>
+            <div class="concepto-dato">
+                <span class="badge badge-dato">💡 Impacto en el aprendizaje</span>
+                <p>Si todas las recompensas fueran simétricas (ej: acierto=+1, error=−1), el agente trataría ambos tipos de error por igual y no priorizaría la detección de anomalías. La asimetría es una forma de codificar conocimiento de dominio en el algoritmo.</p>
+            </div>
+            <p class="concepto-relacion">🔗 Conceptos relacionados: <a href="#" onclick="abrirConcepto(10)">Matriz de Confusión</a>, <a href="#" onclick="abrirConcepto(1)">El Agente Q-learning</a></p>
+        </div>
     </div>
-    <div class="concepto-card">
-        <h3>Acción</h3>
-        <p>Decisión que el agente puede tomar en cada paso. El agente dispone de dos acciones: clasificar el estado como normal (0) o como anómalo (1).</p>
+
+    <!-- ====================================================================== -->
+    <!-- CONCEPTO 4: POLÍTICA ε-GREEDY                                          -->
+    <!-- ====================================================================== -->
+    <div class="concepto-acordeon">
+        <div class="concepto-header" onclick="toggleConcepto(this)">
+            <div class="concepto-header-left">
+                <span class="concepto-icon">🎲</span>
+                <div>
+                    <h3>Política ε-greedy</h3>
+                    <p class="concepto-resumen">
+                        La política <strong>ε-greedy</strong> es la estrategia que el agente usa para seleccionar acciones. Con probabilidad ε (exploración) elige una acción aleatoria; con probabilidad 1−ε (explotación) elige la acción con mayor valor Q. El valor de ε <strong>decae exponencialmente</strong> desde 1.0 hasta 0.01: ε ← ε × 0.995 por episodio. Esto significa que el agente explora intensamente al inicio (descubriendo el entorno) y gradualmente pasa a explotar su conocimiento (usando lo aprendido).
+                    </p>
+                </div>
+            </div>
+            <span class="concepto-toggle">+</span>
+        </div>
+        <div class="concepto-body">
+            <div class="concepto-definicion">
+                <p>La política ε-greedy se implementa en el método <code>elegir_accion(estado)</code> de la clase <code>QLearning</code>:</p>
+                <div class="formula-box" style="margin: 0.5rem 0;">
+                    <code>if random.random() &lt; self.epsilon:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;return random.randint(0, n_acciones - 1)  &nbsp;# explorar<br>
+                    else:<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;return argmax(self.q_table[estado])        &nbsp;# explotar</code>
+                </div>
+
+                <h4>Decaimiento de ε</h4>
+                <p>El parámetro ε se actualiza al final de cada episodio mediante <code>decaer_epsilon()</code>: <code>ε = max(ε_min, ε × ε_decay)</code>. Con ε_decay = 0.995, la evolución sigue una curva exponencial:</p>
+
+                <div id="epsilon-chart" class="inline-chart" style="height:240px; margin: 0.75rem 0;"></div>
+
+                <p style="margin-top:0.5rem;">Puntos clave de la curva de decaimiento:</p>
+                <ul>
+                    <li>ε = 1.0 → después de <strong>100 episodios</strong>: ε ≈ 0.606 (60% exploración)</li>
+                    <li>ε = 1.0 → después de <strong>300 episodios</strong>: ε ≈ 0.222 (22% exploración)</li>
+                    <li>ε = 1.0 → después de <strong>500 episodios</strong>: ε ≈ 0.082 (8% exploración)</li>
+                    <li>ε = 1.0 → después de <strong>920 episodios</strong>: ε ≈ 0.01 (1%, mínimo)</li>
+                </ul>
+            </div>
+            <div class="concepto-ejemplo">
+                <span class="badge badge-ejemplo">📌 Efecto en el entrenamiento</span>
+                <p>Durante los primeros episodios (ε alto), el agente comete muchos errores porque actúa casi al azar. Pero esta fase es crucial: le permite visitar estados que de otro modo nunca exploraría. A medida que ε decae, el agente empieza a usar su tabla Q cada vez más, y la precisión aumenta. Si ε decayera muy rápido (< 0.99), el agente podría quedarse atascado en una política subóptima sin haber explorado lo suficiente.</p>
+            </div>
+            <div class="concepto-dato">
+                <span class="badge badge-dato">💡 Alternativas</span>
+                <p>La política ε-greedy explora de manera uniforme (todas las acciones tienen igual probabilidad de ser elegidas al explorar). Existen políticas más sofisticadas como UCB (Upper Confidence Bound) que exploran de forma más inteligente, eligiendo acciones con mayor incertidumbre. Sin embargo, ε-greedy es sorprendentemente efectiva y mucho más simple de implementar.</p>
+            </div>
+            <p class="concepto-relacion">🔗 Conceptos relacionados: <a href="#" onclick="abrirConcepto(6)">Exploración vs Explotación</a>, <a href="#" onclick="abrirConcepto(1)">El Agente Q-learning</a></p>
+        </div>
     </div>
-    <div class="concepto-card">
-        <h3>Recompensa</h3>
-        <p>Señal numérica que recibe el agente tras ejecutar una acción. Las recompensas siguen la matriz de confusión: TP=+10, TN=+1, FP=-5, FN=-20.</p>
+
+    <!-- ====================================================================== -->
+    <!-- CONCEPTO 5: Q-LEARNING (EL ALGORITMO)                                  -->
+    <!-- ====================================================================== -->
+    <div class="concepto-acordeon">
+        <div class="concepto-header" onclick="toggleConcepto(this)">
+            <div class="concepto-header-left">
+                <span class="concepto-icon">🧠</span>
+                <div>
+                    <h3>Q-learning: El Algoritmo de Aprendizaje</h3>
+                    <p class="concepto-resumen">
+                        <strong>Q-learning</strong> es un algoritmo de RL <strong>off-policy</strong> que aprende la función de valor Q(s,a) sin necesidad de un modelo del entorno. Desarrollado por Chris Watkins (1989), es el algoritmo que impulsa a nuestro agente. Aprende la <strong>política óptima</strong> independientemente de la política que esté siguiendo durante el entrenamiento, lo que permite explorar agresivamente sin comprometer la convergencia. La curva de aprendizaje muestra cómo la recompensa acumulada por episodio aumenta progresivamente.
+                    </p>
+                </div>
+            </div>
+            <span class="concepto-toggle">+</span>
+        </div>
+        <div class="concepto-body">
+            <div class="concepto-definicion">
+                <p><strong>Q-learning</strong> es un algoritmo de diferencias temporales (TD Learning) que pertenece a la familia de métodos off-policy. A diferencia de SARSA (on-policy), Q-learning aprende la función de valor óptima independientemente de las acciones que el agente esté tomando durante el entrenamiento.</p>
+
+                <h4>Evolución del aprendizaje</h4>
+                <p>Durante el entrenamiento, la recompensa acumulada por episodio muestra una tendencia creciente. Los primeros episodios tienen recompensas bajas o negativas (muchos errores por exploración), pero a medida que la tabla Q se estabiliza, las recompensas aumentan:</p>
+
+                <div id="learning-chart" class="inline-chart" style="height:260px; margin: 0.75rem 0;"></div>
+
+                <h4 style="margin-top:1rem;">Propiedades del algoritmo</h4>
+                <ul>
+                    <li><strong>Off-policy:</strong> aprende la política óptima π* mientras sigue una política de comportamiento diferente (ε-greedy).</li>
+                    <li><strong>Tabular:</strong> usa una tabla finita para almacenar Q(s,a). Adecuado para espacios de estados discretos pequeños o medianos.</li>
+                    <li><strong>Convergencia garantizada:</strong> bajo condiciones de exploración infinita (todos los pares (s,a) visitados infinitas veces) y learning rate que decae apropiadamente, Q-learning converge a la política óptima.</li>
+                    <li><strong>Libre de modelo:</strong> no necesita conocer las probabilidades de transición P(s'|s,a) del entorno.</li>
+                </ul>
+            </div>
+            <div class="concepto-ejemplo">
+                <span class="badge badge-ejemplo">📌 Cómo se entrena al agente</span>
+                <p>En la página de <a href="/simulacion">Simulación</a>, puedes entrenar al agente con un botón "Entrenar 100 episodios". Cada episodio ejecuta hasta 10 pasos (configurable en el entorno). Después de 500 episodios (unos segundos), la tabla Q contiene valores significativos y la precisión típicamente supera el 65%. El heatmap de la tabla Q en la página de Visualizaciones muestra cómo ciertos estados tienen Q altos para la acción "anómalo" y otros para "normal".</p>
+            </div>
+            <div class="concepto-dato">
+                <span class="badge badge-dato">💡 Deep Q-Learning</span>
+                <p>Cuando el espacio de estados es demasiado grande para una tabla (como píxeles de una imagen), Q-learning tabular no es viable. Deep Q-Networks (DQN) reemplazan la tabla Q por una red neuronal que aproxima Q(s,a). DQN fue el algoritmo usado por DeepMind para jugar Atari (2015) y es una extensión natural de este proyecto para entornos más complejos.</p>
+            </div>
+            <p class="concepto-relacion">🔗 Conceptos relacionados: <a href="#" onclick="abrirConcepto(7)">Ecuación de Bellman</a>, <a href="#" onclick="abrirConcepto(1)">El Agente Q-learning</a></p>
+        </div>
     </div>
-    <div class="concepto-card">
-        <h3>Política</h3>
-        <p>Estrategia que el agente sigue para seleccionar acciones en cada estado. La política epsilon-greedy balancea exploración aleatoria con explotación de lo aprendido.</p>
+
+    <!-- ====================================================================== -->
+    <!-- CONCEPTO 6: EXPLORACIÓN VS EXPLOTACIÓN                                 -->
+    <!-- ====================================================================== -->
+    <div class="concepto-acordeon">
+        <div class="concepto-header" onclick="toggleConcepto(this)">
+            <div class="concepto-header-left">
+                <span class="concepto-icon">⚖️</span>
+                <div>
+                    <h3>Exploración vs Explotación</h3>
+                    <p class="concepto-resumen">
+                        Es el <strong>dilema fundamental</strong> del aprendizaje por refuerzo. <strong>Explorar</strong> significa probar acciones desconocidas para descubrir sus consecuencias; <strong>explotar</strong> significa usar el conocimiento adquirido para maximizar la recompensa. En este proyecto, el parámetro ε gobierna este balance. Sin exploración, el agente nunca descubriría cómo detectar anomalías; sin explotación, nunca aprovecharía lo aprendido. El decaimiento progresivo de ε asegura una transición suave desde la exploración inicial hasta la explotación final.
+                    </p>
+                </div>
+            </div>
+            <span class="concepto-toggle">+</span>
+        </div>
+        <div class="concepto-body">
+            <div class="concepto-definicion">
+                <p>El dilema de exploración vs explotación aparece en múltiples disciplinas:
+                <em>en economía</em> (¿invertir en un activo conocido o explorar uno nuevo?), <em>en medicina</em> (¿recetar un tratamiento probado o experimental?), <em>en algoritmos</em> (¿mostrar el anuncio que funciona o probar uno nuevo?). En RL, este dilema se formaliza mediante la política de selección de acciones.</p>
+
+                <h4>Fases del entrenamiento</h4>
+                <table class="tabla-anomalias" style="margin: 0.75rem 0;">
+                    <tr>
+                        <th>Fase</th>
+                        <th>ε</th>
+                        <th>Exploración</th>
+                        <th>Explotación</th>
+                        <th>Comportamiento del agente</th>
+                    </tr>
+                    <tr>
+                        <td>Inicial</td>
+                        <td>1.0–0.7</td>
+                        <td>100%–70%</td>
+                        <td>0%–30%</td>
+                        <td>Actúa casi al azar. Descubre el espacio de estados.</td>
+                    </tr>
+                    <tr>
+                        <td>Intermedia</td>
+                        <td>0.7–0.2</td>
+                        <td>70%–20%</td>
+                        <td>30%–80%</td>
+                        <td>Combina exploración con explotación. Empieza a mostrar mejoría.</td>
+                    </tr>
+                    <tr>
+                        <td>Avanzada</td>
+                        <td>0.2–0.01</td>
+                        <td>20%–1%</td>
+                        <td>80%–99%</td>
+                        <td>Explota mayoritariamente. Refina la política con exploración residual.</td>
+                    </tr>
+                    <tr>
+                        <td>Convergencia</td>
+                        <td>0.01</td>
+                        <td>1%</td>
+                        <td>99%</td>
+                        <td>Política casi determinista. La exploración residual permite adaptarse a cambios.</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="concepto-ejemplo">
+                <span class="badge badge-ejemplo">📌 Visualización en la app</span>
+                <p>En la página de <a href="/visualizaciones">Visualizaciones</a>, el <strong>gauge de exploración</strong> muestra el valor actual de ε en tiempo real. Cuando el gauge está cerca de 1.0 (rojo), el agente está explorando. Cuando está cerca de 0.0 (verde), está explotando. Durante el entrenamiento, puedes ver cómo el gauge pasa lentamente de rojo a verde.</p>
+            </div>
+            <div class="concepto-dato">
+                <span class="badge badge-dato">💡 La exploración residual es clave</span>
+                <p>Aunque el agente converge, mantener ε = 0.01 (1% de exploración) es intencional. Si ε = 0, el agente nunca volvería a probar acciones diferentes, incluso si el entorno cambiara. En un sistema industrial real, los sensores pueden derivar, nuevos tipos de anomalías pueden aparecer, y el agente necesita poder adaptarse. El 1% de exploración residual asegura que siempre esté recolectando información nueva.</p>
+            </div>
+            <p class="concepto-relacion">🔗 Conceptos relacionados: <a href="#" onclick="abrirConcepto(4)">Política ε-greedy</a>, <a href="#" onclick="abrirConcepto(1)">El Agente Q-learning</a></p>
+        </div>
     </div>
-    <div class="concepto-card">
-        <h3>ε-greedy</h3>
-        <p>Política de selección de acciones que con probabilidad ε elige una acción aleatoria (exploración) y con probabilidad 1-ε elige la acción con mayor valor Q (explotación).</p>
+
+    <!-- ====================================================================== -->
+    <!-- CONCEPTO 7: ECUACIÓN DE BELLMAN                                        -->
+    <!-- ====================================================================== -->
+    <div class="concepto-acordeon">
+        <div class="concepto-header" onclick="toggleConcepto(this)">
+            <div class="concepto-header-left">
+                <span class="concepto-icon">📐</span>
+                <div>
+                    <h3>Ecuación de Bellman</h3>
+                    <p class="concepto-resumen">
+                        Es la <strong>ecuación fundamental</strong> que permite al agente aprender de cada experiencia. Actualiza el valor Q(s,a) combinando la recompensa inmediata <em>r</em> con el valor descontado del mejor estado siguiente γ·max Q(s',a'), y ajustando suavemente el valor anterior según la tasa de aprendizaje α. Esencialmente, el agente compara lo que esperaba recibir (Q actual) con lo que realmente recibió (r + γ·max Q(s',a')), y reduce esa diferencia progresivamente.
+                    </p>
+                </div>
+            </div>
+            <span class="concepto-toggle">+</span>
+        </div>
+        <div class="concepto-body">
+            <div class="concepto-definicion">
+                <p>La <strong>ecuación de Bellman</strong> (o actualización de Q-learning) es el núcleo matemático del algoritmo. Richard Bellman la desarrolló en los años 1950 como parte de la teoría de programación dinámica, décadas antes de que surgiera el RL moderno.</p>
+
+                <div class="formula-box">
+                    <code>Q(s,a) ← Q(s,a) + α · [ r + γ · max<sub>a'</sub> Q(s',a') − Q(s,a) ]</code>
+                </div>
+
+                <h4>Desglose de la fórmula</h4>
+                <table class="tabla-anomalias" style="margin: 0.75rem 0;">
+                    <tr>
+                        <th>Símbolo</th>
+                        <th>Nombre</th>
+                        <th>Valor</th>
+                        <th>Función</th>
+                    </tr>
+                    <tr>
+                        <td><span class="var">Q(s,a)</span></td>
+                        <td>Valor Q actual</td>
+                        <td>Variable</td>
+                        <td>Estimación actual de la calidad de tomar <em>a</em> en <em>s</em></td>
+                    </tr>
+                    <tr>
+                        <td><span class="var">α</span></td>
+                        <td>Learning rate</td>
+                        <td>0.1</td>
+                        <td>Controla cuánto se actualiza el valor. α=0 → no aprende; α=1 → reemplazo total</td>
+                    </tr>
+                    <tr>
+                        <td><span class="var">r</span></td>
+                        <td>Recompensa</td>
+                        <td>±10, ±5, ±20</td>
+                        <td>Retroalimentación inmediata del entorno tras ejecutar la acción</td>
+                    </tr>
+                    <tr>
+                        <td><span class="var">γ</span></td>
+                        <td>Discount factor</td>
+                        <td>0.9</td>
+                        <td>Peso de recompensas futuras. γ=0 → miope; γ=1 → visión a largo plazo</td>
+                    </tr>
+                    <tr>
+                        <td><span class="var">max Q(s',a')</span></td>
+                        <td>Valor futuro óptimo</td>
+                        <td>Variable</td>
+                        <td>Máximo valor Q en el nuevo estado s'. Representa la mejor acción futura posible</td>
+                    </tr>
+                    <tr>
+                        <td><span class="var">TD error</span></td>
+                        <td>Error de diferencia temporal</td>
+                        <td>Calculado</td>
+                        <td>Diferencia entre lo esperado y lo observado. Cuanto mayor, más está aprendiendo el agente</td>
+                    </tr>
+                </table>
+
+                <h4>Ejemplo numérico paso a paso</h4>
+                <p>Supongamos que el agente está en el estado <strong>s=420</strong> (temperatura alta, vibración baja, presión muy alta, RPM baja), clasifica como anómalo (a=1), acierta (TP, r=+10), y transita al estado <strong>s'=310</strong>. Antes de actualizar, Q(420,1)=3.0 y max Q(310,·)=5.0:</p>
+                <div class="formula-box" style="margin: 0.5rem 0;">
+                    <code>TD target = 10 + 0.9 × 5.0 = 14.5<br>
+                    TD error = 14.5 − 3.0 = 11.5<br>
+                    Q(420,1) ← 3.0 + 0.1 × 11.5 = <strong>4.15</strong></code>
+                </div>
+                <p>El valor Q aumentó de 3.0 a 4.15, reflejando que la acción fue acertada. Si hubiera fallado (FN, r=−20), el TD target habría sido mucho menor y Q habría disminuido.</p>
+            </div>
+            <div class="concepto-dato">
+                <span class="badge badge-dato">💡 Interpretación intuitiva</span>
+                <p>Piensa en la ecuación de Bellman como un <strong>profesor paciente</strong>: cada vez que el agente actúa, el profesor le dice "esto es lo que realmente pasó (r + γ·max Q(s',a')). Esto es lo que esperabas que pasara (Q(s,a)). La diferencia es tu error. Aprende de él, pero no cambies todo de golpe (α=0.1), solo un poco cada vez."</p>
+            </div>
+            <p class="concepto-relacion">🔗 Conceptos relacionados: <a href="#" onclick="abrirConcepto(5)">Q-learning</a>, <a href="#" onclick="abrirConcepto(1)">El Agente Q-learning</a></p>
+        </div>
     </div>
-    <div class="concepto-card">
-        <h3>Q-learning</h3>
-        <p>Algoritmo de aprendizaje por refuerzo que aprende la función de valor Q(s,a) sin necesidad de un modelo del entorno, usando la ecuación de Bellman para actualizar sus estimaciones.</p>
+
+    <!-- ====================================================================== -->
+    <!-- CONCEPTO 8: MATRIZ DE CONFUSIÓN                                        -->
+    <!-- ====================================================================== -->
+    <div class="concepto-acordeon">
+        <div class="concepto-header" onclick="toggleConcepto(this)">
+            <div class="concepto-header-left">
+                <span class="concepto-icon">✅</span>
+                <div>
+                    <h3>Matriz de Confusión y Métricas</h3>
+                    <p class="concepto-resumen">
+                        La <strong>matriz de confusión</strong> es la herramienta que mide el rendimiento del agente como clasificador binario. Organiza los resultados en una tabla 2×2 comparando las predicciones del agente con la realidad: <strong>TP</strong> (anomalía bien detectada, recompensa +10), <strong>TN</strong> (normal bien clasificado, +1), <strong>FP</strong> (falsa alarma, −5), <strong>FN</strong> (anomalía no detectada, −20). A partir de estos valores se calcula la <strong>precisión global</strong> y la <strong>sensibilidad</strong>, métricas clave para evaluar al agente.
+                    </p>
+                </div>
+            </div>
+            <span class="concepto-toggle">+</span>
+        </div>
+        <div class="concepto-body">
+            <div class="concepto-definicion">
+                <p>La matriz de confusión es una tabla de contingencia 2×2 donde cada fila representa la clase real y cada columna la predicción del modelo.</p>
+
+                <div class="confusion-matrix-visual" style="margin: 1rem 0;">
+                    <table class="confusion-table">
+                        <tr>
+                            <td></td>
+                            <td colspan="2" style="text-align:center; font-weight:600; color:var(--color-texto-tenue); font-size:0.85rem; padding-bottom:0.5rem;">Predicción del Agente</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:600; color:var(--color-texto-tenue); font-size:0.85rem; padding-right:0.5rem;">Realidad</td>
+                            <td style="text-align:center; font-size:0.8rem; color:var(--color-texto-tenue);">Normal (0)</td>
+                            <td style="text-align:center; font-size:0.8rem; color:var(--color-texto-tenue);">Anómalo (1)</td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:500; color:var(--color-texto); padding-right:0.5rem;">Normal (0)</td>
+                            <td class="cm-cell cm-tn">
+                                <strong>TN</strong> = Verdadero Normal<br>
+                                <span class="cm-valor">+1</span><br>
+                                <span class="cm-desc">Clasificación correcta</span>
+                            </td>
+                            <td class="cm-cell cm-fp">
+                                <strong>FP</strong> = Falsa Alarma<br>
+                                <span class="cm-valor">−5</span><br>
+                                <span class="cm-desc">Error leve</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="font-weight:500; color:var(--color-texto); padding-right:0.5rem;">Anómalo (1)</td>
+                            <td class="cm-cell cm-fn">
+                                <strong>FN</strong> = No Detectada<br>
+                                <span class="cm-valor">−20</span><br>
+                                <span class="cm-desc">⚠️ Error grave</span>
+                            </td>
+                            <td class="cm-cell cm-tp">
+                                <strong>TP</strong> = Detectada<br>
+                                <span class="cm-valor">+10</span><br>
+                                <span class="cm-desc">✅ Detección exitosa</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h4>Métricas derivadas</h4>
+                <div class="formula-box" style="margin: 0.5rem 0;">
+                    <code>Precisión = (TP + TN) / (TP + TN + FP + FN) &nbsp;→&nbsp; ¿Qué tan seguido acierta el agente?<br>
+                    Sensibilidad = TP / (TP + FN) &nbsp;→&nbsp; ¿Qué fracción de anomalías detecta?<br>
+                    Especificidad = TN / (TN + FP) &nbsp;→&nbsp; ¿Qué fracción de normales clasifica bien?</code>
+                </div>
+            </div>
+            <div class="concepto-ejemplo">
+                <span class="badge badge-ejemplo">📌 Ejemplo después de 500 episodios</span>
+                <p>TP=87, TN=802, FP=43, FN=68 → Precisión = (87+802)/(87+802+43+68) = 889/1000 = <strong>88.9%</strong>. Sin embargo, la sensibilidad = 87/(87+68) = <strong>56.1%</strong>, lo que indica que el agente aún deja pasar muchas anomalías. Esto ocurre porque solo el 25% de los estados son anómalos; el agente tiene menos exposición a ellos.</p>
+            </div>
+            <div class="concepto-dato">
+                <span class="badge badge-dato">💡 Por qué la precisión puede engañar</span>
+                <p>En problemas con clases desbalanceadas (como detección de anomalías, donde los normales son mayoría), la precisión global puede ser engañosa. Un clasificador que siempre predice "normal" tendría 99% de precisión si solo el 1% de los casos son anómalos, pero sería inútil porque nunca detectaría una anomalía real. Por eso la <strong>sensibilidad (recall)</strong> es una métrica más importante en este dominio.</p>
+            </div>
+        </div>
     </div>
-    <div class="concepto-card">
-        <h3>Ecuación de Bellman</h3>
-        <p>Ecuación fundamental que relaciona el valor de un estado-acción con la recompensa inmediata más el valor descontado del mejor estado siguiente: Q(s,a) = r + γ·max Q(s',a').</p>
+
+    <!-- ====================================================================== -->
+    <!-- CONCEPTO 9: ARQUITECTURA DEL PROYECTO                                  -->
+    <!-- ====================================================================== -->
+    <div class="concepto-acordeon">
+        <div class="concepto-header" onclick="toggleConcepto(this)">
+            <div class="concepto-header-left">
+                <span class="concepto-icon">🏗️</span>
+                <div>
+                    <h3>Arquitectura del Proyecto</h3>
+                    <p class="concepto-resumen">
+                        La aplicación sigue un patrón de <strong>módulos Python independientes</strong> integrados en un servidor Flask. El backend RL (<code>agente/</code> y <code>simulacion/</code>) implementa el Q-learning, el entorno y el motor de simulación. El frontend usa <strong>Jinja2</strong> con herencia de layouts, <strong>HTMX</strong> para actualizaciones parciales sin recargar la página, y <strong>Plotly.js</strong> para gráficos interactivos. Todo se ejecuta en un solo proceso Flask sin capa REST separada, y se contenedoriza con Docker para facilitar el despliegue.
+                    </p>
+                </div>
+            </div>
+            <span class="concepto-toggle">+</span>
+        </div>
+        <div class="concepto-body">
+            <div class="concepto-definicion">
+                <p>La aplicación completa está estructurada en torno a tres capas que se comunican dentro del mismo proceso Python:</p>
+
+                <div style="margin: 1rem 0; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 8px; font-family: 'Courier New', monospace; font-size: 0.8rem; line-height: 1.6; color: var(--color-texto-tenue);">
+                    rl-app/<br>
+                    ├── <strong>app.py</strong> &nbsp;&nbsp;← Servidor Flask (6 rutas + 6 endpoints API)<br>
+                    ├── <strong>agente/</strong><br>
+                    │   └── aprendizaje.py &nbsp;&nbsp;← Q-learning (tabla Q, ε-greedy, Bellman)<br>
+                    ├── <strong>simulacion/</strong><br>
+                    │   ├── entorno.py &nbsp;&nbsp;← Máquina industrial con 4 sensores<br>
+                    │   └── motor.py &nbsp;&nbsp;← Orquestador de episodios de entrenamiento<br>
+                    ├── <strong>web/</strong><br>
+                    │   ├── static/css/style.css<br>
+                    │   ├── static/js/app.js + graficos.js<br>
+                    │   └── templates/ &nbsp;&nbsp;← 6 páginas Jinja2 + 5 partials HTMX<br>
+                    ├── Dockerfile<br>
+                    └── requirements.txt
+                </div>
+
+                <h4>Flujo de datos</h4>
+                <ol>
+                    <li>El usuario hace clic en "Ejecutar un Paso" en la página de Simulación</li>
+                    <li>HTMX envía un POST a <code>/api/ejecutar-paso</code></li>
+                    <li>Flask llama a <code>motor.paso()</code> que ejecuta el ciclo completo: agente.elige_acción() → entorno.step() → agente.actualiza() → motor.registra_métricas()</li>
+                    <li>Flask renderiza el partial <code>parciales/metricas.html</code> con los resultados</li>
+                    <li>HTMX inyecta el HTML en el DOM sin recargar la página</li>
+                    <li>Eventos HTMX disparan actualizaciones de los gráficos Plotly.js en el cliente</li>
+                </ol>
+            </div>
+            <div class="concepto-ejemplo">
+                <span class="badge badge-ejemplo">📌 Tecnologías usadas</span>
+                <p>🐍 <strong>Python 3.12+</strong> con Flask 3.0, NumPy 1.24, Pandas 2.0 y Plotly 5.18. 🖥️ Servidor <strong>Gunicorn</strong> 21.2 para producción. 📦 <strong>Docker</strong> multi-stage para contenedorización. 🎨 Frontend con <strong>Jinja2</strong>, <strong>HTMX</strong> 1.9.10 (CDN) y <strong>Plotly.js</strong> 2.27.0 (CDN).</p>
+            </div>
+            <div class="concepto-dato">
+                <span class="badge badge-dato">💡 Por qué un solo proceso</span>
+                <p>Para una aplicación educativa como esta, mantener el backend RL y el servidor web en el mismo proceso simplifica enormemente la arquitectura. No hay colas de mensajes, bases de datos ni microservicios. El agente vive en memoria global y su estado se pierde al reiniciar el servidor — lo cual es aceptable para fines didácticos. En un sistema de producción real, el estado del agente debería persistirse en una base de datos o archivo.</p>
+            </div>
+        </div>
     </div>
+
+    <!-- ====================================================================== -->
+    <!-- CONCEPTO 10: ENTRENAMIENTO Y CONVERGENCIA                              -->
+    <!-- ====================================================================== -->
+    <div class="concepto-acordeon">
+        <div class="concepto-header" onclick="toggleConcepto(this)">
+            <div class="concepto-header-left">
+                <span class="concepto-icon">📈</span>
+                <div>
+                    <h3>Entrenamiento y Convergencia</h3>
+                    <p class="concepto-resumen">
+                        El entrenamiento del agente sigue un proceso iterativo donde cada <strong>episodio</strong> consta de hasta 10 pasos (configurable). En cada paso el agente clasifica un estado y recibe retroalimentación. Con ~300–500 episodios, la tabla Q comienza a estabilizarse y la precisión supera el 65%. La <strong>curva de aprendizaje</strong> muestra una tendencia ascendente en la recompensa acumulada por episodio, mientras que la <strong>precisión global</strong> mejora progresivamente a medida que ε decae y el agente explota más lo aprendido.
+                    </p>
+                </div>
+            </div>
+            <span class="concepto-toggle">+</span>
+        </div>
+        <div class="concepto-body">
+            <div class="concepto-definicion">
+                <p>El proceso de entrenamiento está orquestado por la clase <code>MotorSimulacion</code> en <code>simulacion/motor.py</code>. Soporta dos modos de operación:</p>
+                <ul>
+                    <li><strong>Entrenamiento por lotes</strong> — <code>motor.entrenar(episodios)</code>: ejecuta N episodios completos de forma acelerada, sin renderizar cada paso en el frontend. Ideal para entrenar rápidamente al agente.</li>
+                    <li><strong>Paso a paso</strong> — <code>motor.paso()</code>: ejecuta un solo paso y devuelve métricas detalladas. Ideal para la simulación interactiva desde la UI.</li>
+                </ul>
+
+                <h4>Evolución típica durante el entrenamiento</h4>
+                <div id="convergence-chart" class="inline-chart" style="height:260px; margin: 0.75rem 0;"></div>
+
+                <h4 style="margin-top:1rem;">Registro adaptativo de precisión</h4>
+                <p>Para mantener el gráfico de precisión legible sin importar cuántos pasos se ejecuten, el motor usa un <strong>intervalo de registro adaptativo</strong>:</p>
+                <table class="tabla-anomalias" style="margin: 0.75rem 0;">
+                    <tr><th>Total de pasos</th><th>Frecuencia de registro</th><th>Puntos en el gráfico</th></tr>
+                    <tr><td>&lt; 200</td><td>Cada 10 pasos</td><td>~20 puntos</td></tr>
+                    <tr><td>200 – 500</td><td>Cada 25 pasos</td><td>~20 puntos</td></tr>
+                    <tr><td>500 – 2000</td><td>Cada 100 pasos</td><td>~20 puntos</td></tr>
+                    <tr><td>2000 – 10000</td><td>Cada 500 pasos</td><td>~20 puntos</td></tr>
+                    <tr><td>&gt; 10000</td><td>Cada 1000 pasos</td><td>~20 puntos</td></tr>
+                </table>
+            </div>
+            <div class="concepto-ejemplo">
+                <span class="badge badge-ejemplo">📌 Cómo usar la simulación</span>
+                <p>1. Ve a la página de <a href="/simulacion">Simulación</a>. 2. Haz clic en "Ejecutar un Paso" para observar decisiones individuales. 3. Usa "Entrenar 100" para acelerar el aprendizaje. 4. Observa cómo la precisión aumenta y ε disminuye. 5. Explora el heatmap de la tabla Q en <a href="/visualizaciones">Visualizaciones</a> para ver qué ha aprendido el agente.</p>
+            </div>
+            <div class="concepto-dato">
+                <span class="badge badge-dato">💡 Límites del enfoque tabular</span>
+                <p>Q-learning tabular funciona bien con ~625 estados, pero no escala a espacios más grandes. Si quisiéramos usar sensores con 10 niveles cada uno, tendríamos 10⁴ = 10,000 estados — una tabla Q de 10,000×2 aún manejable, pero el aprendizaje sería más lento. Con 100 niveles serían 100⁴ = 100 millones de estados, imposible de almacenar. Ahí es donde entran las redes neuronales (Deep Q-Learning).</p>
+            </div>
+            <p class="concepto-relacion">🔗 Conceptos relacionados: <a href="#" onclick="abrirConcepto(1)">El Agente Q-learning</a>, <a href="#" onclick="abrirConcepto(5)">Q-learning</a></p>
+        </div>
+    </div>
+
 </div>
+
+<!-- ========================================================================== -->
+<!-- SECCIÓN EXTRA: DEMOSTRACIÓN VISUAL COMPLETA                               -->
+<!-- ========================================================================== -->
+<section class="section" style="margin-top: 2.5rem;">
+    <h2 class="section-title">📊 Demostración Visual del Aprendizaje</h2>
+    <p class="section-content" style="max-width:800px; margin: 0 auto 1.5rem auto; color:var(--color-texto-tenue); line-height:1.7;">
+        A continuación se muestran gráficos generados con datos sintéticos que simulan el comportamiento típico del agente durante 500 episodios de entrenamiento. Estos gráficos son representativos del rendimiento que puedes observar al ejecutar la simulación real en la aplicación.
+    </p>
+
+    <!-- Fila de 2 gráficos -->
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; max-width:1000px; margin: 0 auto;">
+        <div class="chart-container">
+            <h2>Recompensa por Episodio</h2>
+            <div id="demo-rewards" class="chart-area" style="height:300px;"></div>
+        </div>
+        <div class="chart-container">
+            <h2>Precisión vs Pasos de Entrenamiento</h2>
+            <div id="demo-precision" class="chart-area" style="height:300px;"></div>
+        </div>
+    </div>
+
+    <!-- Fila de 1 gráfico ancho -->
+    <div style="display:grid; grid-template-columns: 1fr; gap:1rem; max-width:1000px; margin: 1rem auto 0 auto;">
+        <div class="chart-container">
+            <h2>Evolución de la Tabla Q (Estados más relevantes)</h2>
+            <div id="demo-qvalues" class="chart-area" style="height:280px;"></div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    /**
+     * Alterna la visibilidad del contenido detallado de un concepto (acordeón).
+     * Solo permite un concepto abierto a la vez para mantener la interfaz limpia.
+     */
+    function toggleConcepto(header) {
+        const acordeon = header.closest('.concepto-acordeon');
+        const isOpen = acordeon.classList.contains('open');
+
+        // Cerrar todos los demás acordeones abiertos
+        document.querySelectorAll('.concepto-acordeon.open').forEach(function(el) {
+            if (el !== acordeon) {
+                el.classList.remove('open');
+                el.querySelector('.concepto-toggle').textContent = '+';
+            }
+        });
+
+        // Alternar el actual
+        if (isOpen) {
+            acordeon.classList.remove('open');
+            header.querySelector('.concepto-toggle').textContent = '+';
+        } else {
+            acordeon.classList.add('open');
+            header.querySelector('.concepto-toggle').textContent = '−';
+        }
+    }
+
+    /**
+     * Abre un concepto específico por su índice (para navegación entre conceptos).
+     * Busca el n-ésimo acordeón y lo expande, haciendo scroll hacia él.
+     */
+    function abrirConcepto(indice) {
+        const acordeones = document.querySelectorAll('.concepto-acordeon');
+        if (indice >= 1 && indice <= acordeones.length) {
+            const target = acordeones[indice - 1];
+            const header = target.querySelector('.concepto-header');
+            // Cerrar otros
+            acordeones.forEach(function(el) {
+                if (el !== target) {
+                    el.classList.remove('open');
+                    el.querySelector('.concepto-toggle').textContent = '+';
+                }
+            });
+            // Abrir target
+            target.classList.add('open');
+            target.querySelector('.concepto-toggle').textContent = '−';
+            // Scroll suave
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    // =========================================================================
+    // GRÁFICOS INLINE CON DATOS SINTÉTICOS
+    // Se renderizan al cargar la página usando Plotly.js (ya cargado en base.html)
+    // =========================================================================
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // ---- GRÁFICO 1: Recompensas (concepto 3: Acciones y Recompensas) ----
+        const rewardsLabels = ['TP\n+10', 'TN\n+1', 'FP\n−5', 'FN\n−20'];
+        const rewardsValues = [10, 1, -5, -20];
+        const rewardsColors = ['#4a7a5a', '#5a7d9a', '#8a7a3a', '#7a4a4a'];
+
+        Plotly.newPlot('recompensas-chart', [{
+            x: rewardsLabels,
+            y: rewardsValues,
+            type: 'bar',
+            marker: { color: rewardsColors },
+            text: rewardsValues.map(v => (v > 0 ? '+' : '') + v),
+            textposition: 'outside',
+            textfont: { color: '#cccccc', size: 14, family: 'Courier New' },
+            hovertemplate: '%{x}<br>Recompensa: %{y}<extra></extra>'
+        }], {
+            xaxis: { title: '', color: '#888888', gridcolor: '#333333' },
+            yaxis: { title: 'Valor de Recompensa', color: '#888888', gridcolor: '#333333', zerolinecolor: '#444' },
+            paper_bgcolor: 'transparent',
+            plot_bgcolor: 'transparent',
+            font: { color: '#888888', size: 11 },
+            margin: { l: 50, r: 20, t: 10, b: 50 },
+            height: 210,
+            showlegend: false,
+            bargap: 0.3
+        }, { responsive: true, displayModeBar: false });
+
+        // ---- GRÁFICO 2: Decaimiento de ε (concepto 4: Política ε-greedy) ----
+        const epsEpisodios = [];
+        const epsValues = [];
+        let eps = 1.0;
+        for (let i = 0; i <= 500; i += 5) {
+            epsEpisodios.push(i);
+            epsValues.push(eps);
+            for (let j = 0; j < 5; j++) {
+                eps = Math.max(0.01, eps * 0.995);
+            }
+        }
+
+        Plotly.newPlot('epsilon-chart', [{
+            x: epsEpisodios,
+            y: epsValues,
+            type: 'scatter',
+            mode: 'lines',
+            name: 'ε',
+            line: { color: '#8a7a3a', width: 2.5 },
+            fill: 'tozeroy',
+            fillcolor: 'rgba(138, 122, 58, 0.1)',
+            hovertemplate: 'Episodio %{x}: ε = %{y:.4f}<extra></extra>'
+        }, {
+            x: [0, 500],
+            y: [0.01, 0.01],
+            type: 'scatter',
+            mode: 'lines',
+            name: 'ε mínimo (0.01)',
+            line: { color: '#7a4a4a', width: 1.5, dash: 'dash' },
+            hovertemplate: 'Límite: ε = 0.01<extra></extra>'
+        }], {
+            title: { text: 'Decaimiento de ε por Episodio', font: { color: '#cccccc', size: 13 } },
+            xaxis: { title: 'Episodio', color: '#888888', gridcolor: '#333333' },
+            yaxis: { title: 'ε (Exploración)', color: '#888888', gridcolor: '#333333', range: [0, 1.05] },
+            paper_bgcolor: 'transparent',
+            plot_bgcolor: 'transparent',
+            font: { color: '#888888', size: 11 },
+            margin: { l: 50, r: 20, t: 40, b: 50 },
+            height: 230,
+            showlegend: true,
+            legend: { font: { color: '#888888', size: 10 }, orientation: 'h', x: 0.5, xanchor: 'center', y: 1.1 }
+        }, { responsive: true, displayModeBar: false });
+
+        // ---- GRÁFICO 3: Curva de aprendizaje (concepto 5: Q-learning) ----
+        const learnEpisodes = [];
+        const learnRewards = [];
+        let trend = -5;
+        for (let i = 1; i <= 100; i++) {
+            learnEpisodes.push(i);
+            trend = Math.min(15, trend + 0.25 + (Math.random() - 0.5) * 3);
+            learnRewards.push(Math.max(-25, trend + (Math.random() - 0.5) * 5));
+        }
+
+        // Media móvil (ventana 10)
+        const learnMA = [];
+        for (let i = 0; i < learnRewards.length; i++) {
+            if (i < 10) {
+                const slice = learnRewards.slice(0, i + 1);
+                learnMA.push(slice.reduce((a, b) => a + b, 0) / slice.length);
+            } else {
+                const slice = learnRewards.slice(i - 9, i + 1);
+                learnMA.push(slice.reduce((a, b) => a + b, 0) / 10);
+            }
+        }
+
+        Plotly.newPlot('learning-chart', [
+            {
+                x: learnEpisodes,
+                y: learnRewards,
+                type: 'scatter',
+                mode: 'markers',
+                name: 'Recompensa por episodio',
+                marker: { color: '#5a7d9a', size: 3, opacity: 0.6 },
+                hovertemplate: 'Episodio %{x}: %{y:.1f}<extra></extra>'
+            },
+            {
+                x: learnEpisodes,
+                y: learnMA,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Media móvil (10 ep.)',
+                line: { color: '#4a7a5a', width: 2.5 },
+                hovertemplate: 'Episodio %{x}: tendencia %{y:.1f}<extra></extra>'
+            }
+        ], {
+            title: { text: 'Curva de Aprendizaje (Recompensa por Episodio)', font: { color: '#cccccc', size: 13 } },
+            xaxis: { title: 'Episodio', color: '#888888', gridcolor: '#333333' },
+            yaxis: { title: 'Recompensa Acumulada', color: '#888888', gridcolor: '#333333' },
+            paper_bgcolor: 'transparent',
+            plot_bgcolor: 'transparent',
+            font: { color: '#888888', size: 11 },
+            margin: { l: 50, r: 20, t: 40, b: 50 },
+            height: 250,
+            showlegend: true,
+            legend: { font: { color: '#888888', size: 10 }, orientation: 'h', x: 0.5, xanchor: 'center', y: 1.12 }
+        }, { responsive: true, displayModeBar: false });
+
+        // ---- GRÁFICO 4: Convergencia (concepto 10: Entrenamiento) ----
+        const convEpisodes = [];
+        const convRewards = [];
+        let convTrend = -8;
+        for (let i = 1; i <= 200; i++) {
+            convEpisodes.push(i);
+            convTrend = Math.min(18, convTrend + 0.15 + (Math.random() - 0.5) * 2);
+            convRewards.push(Math.max(-30, convTrend + (Math.random() - 0.5) * 6));
+        }
+
+        const convMA = [];
+        for (let i = 0; i < convRewards.length; i++) {
+            if (i < 15) {
+                const slice = convRewards.slice(0, i + 1);
+                convMA.push(slice.reduce((a, b) => a + b, 0) / slice.length);
+            } else {
+                const slice = convRewards.slice(i - 14, i + 1);
+                convMA.push(slice.reduce((a, b) => a + b, 0) / 15);
+            }
+        }
+
+        // Precisión sintética
+        const convPrecision = convEpisodes.map(function(ep) {
+            return Math.min(85, Math.max(15, 20 + ep * 0.32 + (Math.random() - 0.5) * 10));
+        });
+        const precMA = [];
+        for (let i = 0; i < convPrecision.length; i++) {
+            if (i < 15) {
+                const slice = convPrecision.slice(0, i + 1);
+                precMA.push(slice.reduce((a, b) => a + b, 0) / slice.length);
+            } else {
+                const slice = convPrecision.slice(i - 14, i + 1);
+                precMA.push(slice.reduce((a, b) => a + b, 0) / 15);
+            }
+        }
+
+        Plotly.newPlot('convergence-chart', [
+            {
+                x: convEpisodes,
+                y: convRewards,
+                type: 'scatter',
+                mode: 'markers',
+                name: 'Recompensa',
+                marker: { color: '#5a7d9a', size: 2.5, opacity: 0.5 },
+                yaxis: 'y',
+                hovertemplate: 'Ep. %{x}: %{y:.1f}<extra></extra>'
+            },
+            {
+                x: convEpisodes,
+                y: convMA,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Recompensa (media)',
+                line: { color: '#4a7a5a', width: 2 },
+                yaxis: 'y',
+                hovertemplate: 'Ep. %{x}: media %{y:.1f}<extra></extra>'
+            },
+            {
+                x: convEpisodes,
+                y: precMA,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Precisión (%)',
+                line: { color: '#8a7a3a', width: 2, dash: 'dot' },
+                yaxis: 'y2',
+                hovertemplate: 'Ep. %{x}: precisión %{y:.1f}%<extra></extra>'
+            }
+        ], {
+            title: { text: 'Recompensa y Precisión durante el Entrenamiento', font: { color: '#cccccc', size: 13 } },
+            xaxis: { title: 'Episodio', color: '#888888', gridcolor: '#333333' },
+            yaxis: { title: 'Recompensa', color: '#5a7d9a', gridcolor: '#333333', zerolinecolor: '#444' },
+            yaxis2: {
+                title: 'Precisión (%)',
+                color: '#8a7a3a',
+                gridcolor: '#333333',
+                overlaying: 'y',
+                side: 'right',
+                range: [0, 100]
+            },
+            paper_bgcolor: 'transparent',
+            plot_bgcolor: 'transparent',
+            font: { color: '#888888', size: 11 },
+            margin: { l: 50, r: 50, t: 40, b: 50 },
+            height: 250,
+            showlegend: true,
+            legend: { font: { color: '#888888', size: 9 }, orientation: 'h', x: 0.5, xanchor: 'center', y: 1.15 }
+        }, { responsive: true, displayModeBar: false });
+
+        // ---- GRÁFICOS DE LA DEMOSTRACIÓN VISUAL (sección final) ----
+
+        // Demo: Recompensa por episodio (500 episodios sintéticos)
+        const demoEps = [];
+        const demoRw = [];
+        let dr = -5;
+        for (let i = 1; i <= 200; i++) {
+            demoEps.push(i * 2.5);
+            dr = Math.min(16, dr + 0.12 + (Math.random() - 0.5) * 1.5);
+            demoRw.push(Math.max(-20, dr + (Math.random() - 0.5) * 4));
+        }
+
+        const demoRwMA = [];
+        for (let i = 0; i < demoRw.length; i++) {
+            if (i < 20) {
+                const sl = demoRw.slice(0, i + 1);
+                demoRwMA.push(sl.reduce((a, b) => a + b, 0) / sl.length);
+            } else {
+                const sl = demoRw.slice(i - 19, i + 1);
+                demoRwMA.push(sl.reduce((a, b) => a + b, 0) / 20);
+            }
+        }
+
+        Plotly.newPlot('demo-rewards', [
+            { x: demoEps, y: demoRw, type: 'scatter', mode: 'markers', name: 'Recompensa', marker: { color: '#5a7d9a', size: 3, opacity: 0.5 }, hovertemplate: 'Ep. %{x}: %{y:.1f}<extra></extra>' },
+            { x: demoEps, y: demoRwMA, type: 'scatter', mode: 'lines', name: 'Media móvil (20 ep.)', line: { color: '#4a7a5a', width: 2.5 }, hovertemplate: 'Ep. %{x}: tendencia %{y:.1f}<extra></extra>' }
+        ], {
+            xaxis: { title: 'Episodio', color: '#888888', gridcolor: '#333333' },
+            yaxis: { title: 'Recompensa', color: '#888888', gridcolor: '#333333', zerolinecolor: '#444' },
+            paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+            font: { color: '#888888', size: 11 },
+            margin: { l: 50, r: 20, t: 10, b: 50 }, height: 290,
+            showlegend: true,
+            legend: { font: { color: '#888888', size: 10 }, orientation: 'h', x: 0.5, xanchor: 'center', y: 1.1 }
+        }, { responsive: true, displayModeBar: false });
+
+        // Demo: Precisión
+        const demoPrec = demoRw.map(function(v, i) {
+            return Math.min(88, Math.max(18, 22 + i * 0.3 + (Math.random() - 0.5) * 8));
+        });
+        const demoPrecMA = [];
+        for (let i = 0; i < demoPrec.length; i++) {
+            if (i < 20) {
+                const sl = demoPrec.slice(0, i + 1);
+                demoPrecMA.push(sl.reduce((a, b) => a + b, 0) / sl.length);
+            } else {
+                const sl = demoPrec.slice(i - 19, i + 1);
+                demoPrecMA.push(sl.reduce((a, b) => a + b, 0) / 20);
+            }
+        }
+
+        Plotly.newPlot('demo-precision', [
+            { x: demoEps, y: demoPrec, type: 'scatter', mode: 'markers', name: 'Precisión', marker: { color: '#8a7a3a', size: 3, opacity: 0.4 }, hovertemplate: 'Ep. %{x}: %{y:.1f}%<extra></extra>' },
+            { x: demoEps, y: demoPrecMA, type: 'scatter', mode: 'lines', name: 'Tendencia', line: { color: '#5a7d9a', width: 2.5 }, hovertemplate: 'Ep. %{x}: tendencia %{y:.1f}%<extra></extra>' }
+        ], {
+            xaxis: { title: 'Episodio', color: '#888888', gridcolor: '#333333' },
+            yaxis: { title: 'Precisión (%)', color: '#888888', gridcolor: '#333333', range: [0, 100] },
+            paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+            font: { color: '#888888', size: 11 },
+            margin: { l: 50, r: 20, t: 10, b: 50 }, height: 290,
+            showlegend: true,
+            legend: { font: { color: '#888888', size: 10 }, orientation: 'h', x: 0.5, xanchor: 'center', y: 1.1 }
+        }, { responsive: true, displayModeBar: false });
+
+        // Demo: Evolución de Q-values
+        const qEstados = ['Estado 0\n(Normal bajo)', 'Estado 84\n(Media-alta temp)', 'Estado 168\n(Vibración alta)', 'Estado 252\n(Presión crítica)', 'Estado 420\n(Múltiples altos)', 'Estado 504\n(Mixto anómalo)'];
+        const qNormal = [2.1, -0.5, 4.3, -1.2, -3.8, 1.5];
+        const qAnomalo = [-1.3, 5.2, -0.8, 6.1, 8.4, 3.7];
+
+        Plotly.newPlot('demo-qvalues', [
+            {
+                x: qEstados,
+                y: qNormal,
+                type: 'bar',
+                name: 'Q(s, Normal)',
+                marker: { color: '#5a7d9a' },
+                hovertemplate: '%{x}<br>Q(Normal): %{y:.2f}<extra></extra>'
+            },
+            {
+                x: qEstados,
+                y: qAnomalo,
+                type: 'bar',
+                name: 'Q(s, Anómalo)',
+                marker: { color: '#7a4a4a' },
+                hovertemplate: '%{x}<br>Q(Anómalo): %{y:.2f}<extra></extra>'
+            }
+        ], {
+            xaxis: { title: '', color: '#888888', gridcolor: '#333333', tickfont: { size: 9 } },
+            yaxis: { title: 'Valor Q', color: '#888888', gridcolor: '#333333', zerolinecolor: '#444' },
+            paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+            font: { color: '#888888', size: 11 },
+            margin: { l: 50, r: 20, t: 10, b: 80 }, height: 270,
+            showlegend: true,
+            legend: { font: { color: '#888888', size: 10 }, orientation: 'h', x: 0.5, xanchor: 'center', y: 1.1 },
+            barmode: 'group',
+            bargap: 0.2
+        }, { responsive: true, displayModeBar: false });
+
+    }); // end DOMContentLoaded
+</script>
 {% endblock %}
