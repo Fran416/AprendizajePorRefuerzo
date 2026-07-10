@@ -71,7 +71,7 @@ cd AprendizajePorRefuerzo
 
 ```
 # Construir e iniciar
-docker compose up -d
+docker compose up -d --build
 ```
 
 Abrir en el navegador: `http://localhost`
