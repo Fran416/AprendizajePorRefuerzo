@@ -1,2 +1,33 @@
-# Archivos y carpetas que se excluyen del contexto de build de Docker
-# para reducir el tamaño de la imagen final.
+# Git
+.git/
+.gitignore
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Cache de Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+.pytest_cache/
+
+# IDE y editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Documentacion y planificacion (uso interno)
+*.md
+docs/
+
+# Docker
+.dockerignore
+Dockerfile
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
