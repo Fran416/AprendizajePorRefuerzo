@@ -2,6 +2,8 @@
 
 Proyecto didactico que demuestra como un agente de Q-learning aprende a detectar anomalias en sensores de una maquina industrial mediante prueba y error, sin necesidad de datos etiquetados previamente.
 
+Nota adicional: La documentacion del proyecto es estilo `docstring`, embebido en los archivos logicos
+
 ### Estudiante
 - Francisco Lizama | fran416
 
@@ -60,7 +62,7 @@ Abrir en el navegador: `http://localhost`
 
 ### Con Python local
 
-```bash
+```
 # Instalar dependencias
 pip install -r requirements.txt
 
@@ -72,7 +74,7 @@ Abrir en el navegador: `http://localhost:5000`
 
 ### Para detener
 
-```bash
+```
 # Si esta corriendo con Docker
 docker compose down
 
