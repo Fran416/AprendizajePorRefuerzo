@@ -53,6 +53,15 @@ El backend RL y el servidor web viven en el mismo proceso. No hay base de datos 
 
 El proyecto fue desarrollado y probado en Linux, específicamente `Ubuntu 24.04.4 LTS` por lo que se recomienda encarecidamente su ejecución con Docker para evitar posibles incompatibilidades que puedan surgir en otros sistemas operativos.
 
+### Paso Esencial
+
+Clonar el repositorio y entrar al proyecto 
+```
+git clone https://github.com/Fran416/AprendizajePorRefuerzo.git
+
+cd AprendizajePorRefuerzo
+```
+
 ### Con Docker (recomendado)
 
 #### Requisitos técnicos:
