@@ -51,9 +51,16 @@ El backend RL y el servidor web viven en el mismo proceso. No hay base de datos 
 
 ## Como ejecutar
 
+El proyecto fue desarrollado y probado en Linux, específicamente `Ubuntu 24.04.4 LTS` por lo que se recomienda encarecidamente su ejecución con Docker para evitar posibles incompatibilidades que puedan surgir en otros sistemas operativos.
+
 ### Con Docker (recomendado)
 
-```bash
+#### Requisitos técnicos:
+- Docker Engine version 29.x o superior
+- Docker Compose (V2, integrado de forma nativa en las versiones modernas de Docker)
+- Opcional: Docker Desktop o Podman Desktop, esto para incializar el contenedor mediante una interfaz gráfica de usuario (GUI)
+
+```
 # Construir e iniciar
 docker compose up -d
 ```
@@ -62,7 +69,19 @@ Abrir en el navegador: `http://localhost`
 
 ### Con Python local
 
+#### Requisitos técnicos
+- Python 3.8 o superior
+
 ```
+# Crear entorno python y activarlo
+# Linux
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Windows
+python -m venv .venv
+.venv\Scripts\activate
+
 # Instalar dependencias
 pip install -r requirements.txt
 
