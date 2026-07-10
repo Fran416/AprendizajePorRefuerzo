@@ -1,2 +1,10 @@
-<!-- Página de inicio con la introducción al Aprendizaje por Refuerzo
-     y la explicación del proyecto. -->
+{% extends "base.html" %}
+{% block title %}Inicio - RL Detección de Anomalías{% endblock %}
+{% block content %}
+<section class="hero">
+    <h1>Aprendizaje por Refuerzo</h1>
+    <h2>Detección de Anomalías en Sistemas Industriales</h2>
+    <p>Este proyecto demuestra cómo un agente de Q-learning puede aprender a detectar anomalías en sensores de una máquina industrial mediante prueba y error, sin necesidad de datos etiquetados previamente.</p>
+    <a href="/simulacion" class="btn btn-primary">Comenzar Simulación</a>
+</section>
+{% endblock %}

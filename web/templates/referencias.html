@@ -1,2 +1,30 @@
-<!-- Referencias bibliográficas en formato APA, conclusiones del proyecto
-     y posibles líneas de trabajo futuro. -->
+{% extends "base.html" %}
+{% block title %}Referencias - RL Detección de Anomalías{% endblock %}
+{% block content %}
+<h1 class="page-title">Referencias y Conclusiones</h1>
+<p class="page-subtitle">Bibliografía, conclusiones del proyecto y posibles líneas de mejora futura.</p>
+
+<section class="section">
+    <h2 class="section-title">Bibliografía</h2>
+    <ul class="ref-list">
+        <li class="ref-item"><strong>Sutton, R. S., &amp; Barto, A. G. (2018).</strong> <em>Reinforcement learning: An introduction</em> (2nd ed.). MIT Press.</li>
+        <li class="ref-item"><strong>Watkins, C. J. C. H., &amp; Dayan, P. (1992).</strong> Q-learning. <em>Machine Learning</em>, 8(3), 279-292.</li>
+        <li class="ref-item"><strong>Mnih, V., et al. (2015).</strong> Human-level control through deep reinforcement learning. <em>Nature</em>, 518(7540), 529-533.</li>
+        <li class="ref-item"><strong>Szepesvári, C. (2010).</strong> <em>Algorithms for reinforcement learning</em>. Morgan &amp; Claypool.</li>
+    </ul>
+</section>
+
+<section class="section">
+    <h2 class="section-title">Conclusiones</h2>
+    <p class="ref-item">Este proyecto demuestra cómo un agente de Q-learning tabular puede aprender a detectar anomalías en sistemas industriales simulados, utilizando únicamente recompensas por prueba y error.</p>
+</section>
+
+<section class="section">
+    <h2 class="section-title">Trabajo Futuro</h2>
+    <ul class="ref-list">
+        <li class="ref-item">Implementar Deep Q-Networks (DQN) para entornos con estados continuos.</li>
+        <li class="ref-item">Agregar más sensores y tipos de anomalía para mayor realismo.</li>
+        <li class="ref-item">Desplegar la aplicación en un servidor cloud para acceso público.</li>
+    </ul>
+</section>
+{% endblock %}

@@ -1,2 +1,45 @@
-<!-- Diccionario de conceptos fundamentales de RL: agente, entorno,
-     estado, acción, recompensa, política y Q-learning. -->
+{% extends "base.html" %}
+{% block title %}Conceptos - RL Detección de Anomalías{% endblock %}
+{% block content %}
+<h1 class="page-title">Conceptos Fundamentales</h1>
+<p class="page-subtitle">Diccionario visual de los conceptos clave del Aprendizaje por Refuerzo.</p>
+
+<div class="conceptos-grid">
+    <div class="concepto-card">
+        <h3>Agente</h3>
+        <p>Entidad que aprende a tomar decisiones mediante interacción con el entorno. En este proyecto, el agente es un clasificador que decide si una lectura de sensores es normal o anómala.</p>
+    </div>
+    <div class="concepto-card">
+        <h3>Entorno</h3>
+        <p>Sistema con el que el agente interactúa. En esta aplicación, el entorno simula una máquina industrial con sensores de temperatura, vibración, presión y RPM.</p>
+    </div>
+    <div class="concepto-card">
+        <h3>Estado</h3>
+        <p>Representación del entorno en un instante dado. El estado se construye a partir de las cuatro lecturas de sensores discretizadas en niveles bajo, medio y alto.</p>
+    </div>
+    <div class="concepto-card">
+        <h3>Acción</h3>
+        <p>Decisión que el agente puede tomar en cada paso. El agente dispone de dos acciones: clasificar el estado como normal (0) o como anómalo (1).</p>
+    </div>
+    <div class="concepto-card">
+        <h3>Recompensa</h3>
+        <p>Señal numérica que recibe el agente tras ejecutar una acción. Las recompensas siguen la matriz de confusión: TP=+10, TN=+1, FP=-5, FN=-20.</p>
+    </div>
+    <div class="concepto-card">
+        <h3>Política</h3>
+        <p>Estrategia que el agente sigue para seleccionar acciones en cada estado. La política epsilon-greedy balancea exploración aleatoria con explotación de lo aprendido.</p>
+    </div>
+    <div class="concepto-card">
+        <h3>ε-greedy</h3>
+        <p>Política de selección de acciones que con probabilidad ε elige una acción aleatoria (exploración) y con probabilidad 1-ε elige la acción con mayor valor Q (explotación).</p>
+    </div>
+    <div class="concepto-card">
+        <h3>Q-learning</h3>
+        <p>Algoritmo de aprendizaje por refuerzo que aprende la función de valor Q(s,a) sin necesidad de un modelo del entorno, usando la ecuación de Bellman para actualizar sus estimaciones.</p>
+    </div>
+    <div class="concepto-card">
+        <h3>Ecuación de Bellman</h3>
+        <p>Ecuación fundamental que relaciona el valor de un estado-acción con la recompensa inmediata más el valor descontado del mejor estado siguiente: Q(s,a) = r + γ·max Q(s',a').</p>
+    </div>
+</div>
+{% endblock %}

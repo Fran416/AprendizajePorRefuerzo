@@ -1,2 +1,39 @@
-<!-- Plantilla base Jinja2 con la estructura común de la aplicación:
-     sidebar de navegación, contenido principal, carga de CSS/JS y HTMX. -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}RL - Detección de Anomalías{% endblock %}</title>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <button id="menu-toggle" class="menu-toggle" aria-label="Menú">
+        &#9776;
+    </button>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo">🤖 RL Anomalías</div>
+            <nav>
+                <ul>
+                    <li><a href="/">🏠 Inicio</a></li>
+                    <li><a href="/conceptos">📚 Conceptos</a></li>
+                    <li><a href="/simulacion">🎮 Simulación</a></li>
+                    <li><a href="/visualizaciones">📊 Visualizaciones</a></li>
+                    <li><a href="/referencias">📖 Referencias</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

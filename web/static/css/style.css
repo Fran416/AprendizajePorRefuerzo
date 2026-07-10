@@ -1,2 +1,551 @@
-/* Estilos responsive de la aplicación: layout con sidebar fijo, tipografía,
-   paleta de colores, animaciones y diseño adaptable a móvil/tablet/escritorio. */
+/* =============================================================================
+   style.css — Estilos responsive de la aplicación RL Detección de Anomalías
+   =============================================================================
+   Layout con sidebar fijo, tarjetas de métricas, barras de sensores, botones,
+   hero section, grid de conceptos, contenedores de gráficos y adaptación
+   responsiva para escritorio, tablet y móvil.
+   ============================================================================= */
+
+/* ---- Variables CSS (paleta oscura suave) ---- */
+:root {
+    --color-sidebar:       #0d0d0d;
+    --color-fondo:         #1a1a1a;
+    --color-card:          #242424;
+    --color-borde:         #333333;
+    --color-texto:         #cccccc;
+    --color-texto-tenue:   #888888;
+    --color-texto-sidebar: #999999;
+    --color-accento:       #5a7d9a;
+    --color-accento-hover: #3a5a7a;
+    --color-exito:         #4a7a5a;
+    --color-peligro:       #7a4a4a;
+    --color-advertencia:   #8a7a3a;
+
+    --font-principal: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --sidebar-width: 260px;
+    --padding-contenido: 2rem;
+    --border-radius: 12px;
+    --transition: 0.2s ease;
+}
+
+/* ---- Reset base ---- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-principal);
+    background: var(--color-fondo);
+    color: var(--color-texto);
+    min-height: 100vh;
+}
+
+a {
+    color: var(--color-accento);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+
+a:hover {
+    color: var(--color-accento-hover);
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* ---- Layout app-container ---- */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ---- Sidebar ---- */
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--color-sidebar);
+    overflow-y: auto;
+    z-index: 1000;
+    transition: transform var(--transition);
+}
+
+.sidebar .logo {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--color-borde);
+    font-size: 1.1rem;
+    color: var(--color-texto);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.sidebar nav ul {
+    list-style: none;
+    padding: 0.5rem 0;
+}
+
+.sidebar nav ul li a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.5rem;
+    color: var(--color-texto-sidebar);
+    border-left: 3px solid transparent;
+    transition: all var(--transition);
+    font-size: 0.95rem;
+}
+
+.sidebar nav ul li a:hover,
+.sidebar nav ul li a.active {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--color-texto);
+    border-left-color: var(--color-accento);
+}
+
+/* ---- Menu toggle (móvil) ---- */
+.menu-toggle {
+    display: none;
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1100;
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
+    color: var(--color-texto);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.3rem;
+    line-height: 1;
+}
+
+.menu-toggle:hover {
+    background: var(--color-borde);
+}
+
+/* ---- Main content ---- */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    padding: var(--padding-contenido);
+    min-height: 100vh;
+}
+
+/* ---- Tarjetas de métricas ---- */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.metric-card {
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    transition: transform var(--transition);
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-accento);
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-texto-tenue);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.4rem;
+}
+
+.metric-value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-texto);
+}
+
+.metric-value.accento {
+    color: var(--color-accento);
+}
+
+.metric-value.exito {
+    color: var(--color-exito);
+}
+
+.metric-value.peligro {
+    color: var(--color-peligro);
+}
+
+.metric-detail {
+    font-size: 0.85rem;
+    color: var(--color-texto-tenue);
+    margin-top: 0.3rem;
+}
+
+/* ---- Barras de sensores ---- */
+.sensor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.sensor-card {
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+}
+
+.sensor-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.sensor-name {
+    font-size: 0.9rem;
+    color: var(--color-texto);
+}
+
+.sensor-value {
+    font-size: 0.9rem;
+    color: var(--color-texto-tenue);
+    font-family: 'Courier New', monospace;
+}
+
+.sensor-bar-bg {
+    height: 8px;
+    background: var(--color-borde);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.sensor-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--color-accento);
+    transition: width 0.5s ease;
+}
+
+.sensor-bar-fill.peligro {
+    background: var(--color-peligro);
+}
+
+.sensor-bar-fill.exito {
+    background: var(--color-exito);
+}
+
+.estado-indicator {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.estado-indicator.normal {
+    background: rgba(74, 122, 90, 0.2);
+    color: var(--color-exito);
+    border: 1px solid var(--color-exito);
+}
+
+.estado-indicator.anomalo {
+    background: rgba(122, 74, 74, 0.2);
+    color: var(--color-peligro);
+    border: 1px solid var(--color-peligro);
+}
+
+/* ---- Botones ---- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    border: none;
+    font-family: var(--font-principal);
+}
+
+.btn-primary {
+    background: var(--color-accento);
+    color: var(--color-sidebar);
+}
+
+.btn-primary:hover {
+    background: var(--color-accento-hover);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--color-accento);
+    border: 1px solid var(--color-accento);
+}
+
+.btn-secondary:hover {
+    background: var(--color-accento);
+    color: var(--color-sidebar);
+}
+
+.btn-danger {
+    background: rgba(122, 74, 74, 0.3);
+    color: var(--color-peligro);
+    border: 1px solid var(--color-peligro);
+}
+
+.btn-danger:hover {
+    background: var(--color-peligro);
+    color: var(--color-texto);
+}
+
+.btn-group {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin: 1rem 0;
+    align-items: center;
+}
+
+.btn input[type="number"] {
+    width: 70px;
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
+    color: var(--color-texto);
+    padding: 0.4rem;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+.btn input[type="number"]:focus {
+    outline: none;
+    border-color: var(--color-accento);
+}
+
+/* ---- Hero section (inicio) ---- */
+.hero {
+    text-align: center;
+    padding: 4rem 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    color: var(--color-texto);
+    margin-bottom: 0.5rem;
+}
+
+.hero h2 {
+    font-size: 1.3rem;
+    color: var(--color-texto-tenue);
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+}
+
+.hero p {
+    font-size: 1.05rem;
+    color: var(--color-texto-tenue);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+/* ---- Grid de conceptos ---- */
+.conceptos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.concepto-card {
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    transition: transform var(--transition);
+}
+
+.concepto-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-accento);
+}
+
+.concepto-card h3 {
+    color: var(--color-accento);
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.concepto-card p {
+    color: var(--color-texto-tenue);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* ---- Contenedores de gráficos ---- */
+.chart-container {
+    background: var(--color-card);
+    border: 1px solid var(--color-borde);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.chart-container h2 {
+    font-size: 1.1rem;
+    color: var(--color-texto);
+    margin-bottom: 1rem;
+}
+
+.chart-container .chart-area {
+    width: 100%;
+    height: 400px;
+}
+
+/* ---- Secciones generales ---- */
+.page-title {
+    font-size: 1.8rem;
+    color: var(--color-texto);
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    font-size: 1rem;
+    color: var(--color-texto-tenue);
+    margin-bottom: 2rem;
+}
+
+.section {
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.3rem;
+    color: var(--color-texto);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-borde);
+}
+
+/* ---- Referencias ---- */
+.ref-list {
+    list-style: none;
+    padding: 0;
+}
+
+.ref-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--color-borde);
+    color: var(--color-texto-tenue);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.ref-item:last-child {
+    border-bottom: none;
+}
+
+.ref-item strong {
+    color: var(--color-texto);
+}
+
+/* ---- Estado de carga HTMX ---- */
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
+
+.htmx-request.htmx-indicator {
+    opacity: 1;
+}
+
+/* ---- Responsive ---- */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 200px;
+        --padding-contenido: 1.5rem;
+    }
+    .sensor-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Móvil (< 768px) */
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .sidebar {
+        transform: translateX(-100%);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .conceptos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn-group .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .hero h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero {
+        padding: 2rem 1rem;
+    }
+
+    .page-title {
+        font-size: 1.4rem;
+    }
+
+    .chart-container .chart-area {
+        height: 300px;
+    }
+}
