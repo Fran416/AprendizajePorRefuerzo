@@ -1,0 +1,37 @@
+<div class="metrics-grid">
+    <div class="metric-card">
+        <span class="metric-label">Episodio</span>
+        <span class="metric-value accent">{{ episodio or 0 }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-label">Recompensa</span>
+        <span class="metric-value accent">{{ recompensa or 0 }}</span>
+        {% if accion_texto is defined and accion_texto %}
+        <span class="metric-detail">Acción: {{ accion_texto }}</span>
+        {% endif %}
+    </div>
+    <div class="metric-card">
+        <span class="metric-label">Exploración (ε)</span>
+        <span class="metric-value">{{ epsilon or 1.0 }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-label">Pasos</span>
+        <span class="metric-value accent">{{ total_acciones or 0 }}</span>
+        <span class="metric-detail">{{ (total_acciones or 0) // 10 }} episodios × 10 pasos</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-label">Precisión</span>
+        <span class="metric-value {% if (precision or 0) >= 70 %}exito{% elif (precision or 0) >= 40 %}accent{% else %}peligro{% endif %}">
+            {{ precision or 0 }}%
+        </span>
+        <span class="metric-detail">{{ aciertos or 0 }}/{{ total_acciones or 0 }} aciertos</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-label">TP (aciertos)</span>
+        <span class="metric-value exito">{{ tp or 0 }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-label">FN (fallos)</span>
+        <span class="metric-value peligro">{{ fn or 0 }}</span>
+    </div>
+</div>

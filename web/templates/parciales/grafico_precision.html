@@ -1,0 +1,74 @@
+<div class="chart-container">
+    <h2>Evolución de la Precisión</h2>
+    <div id="precision-chart" class="chart-area" style="height:300px;"></div>
+</div>
+
+<script>
+    (function() {
+        const historial = {{ historial_precision | tojson | safe }};
+        const totalAcciones = {{ total_acciones }};
+
+        if (historial.length === 0) {
+            // Grafico vacio
+            Plotly.newPlot('precision-chart', [], {
+                title: { text: 'Evolución de la Precisión', font: { color: '#cccccc' } },
+                xaxis: { title: { text: 'Paso', font: { color: '#888888' } }, color: '#888888', gridcolor: '#333333' },
+                yaxis: { title: { text: 'Precisión (%)', font: { color: '#888888' } }, color: '#888888', gridcolor: '#333333', range: [0, 100] },
+                paper_bgcolor: '#242424', plot_bgcolor: '#1a1a1a', font: { color: '#888888' },
+                height: 300, showlegend: false
+            }, { responsive: true, staticPlot: true, displayModeBar: false });
+            return;
+        }
+
+        const pasos = historial.map(d => d.paso);
+        const precisiones = historial.map(d => d.precision);
+
+        // Determinar el intervalo de agrupacion para mostrar en el titulo
+        let intervalo = 'variable';
+        if (totalAcciones < 200) intervalo = '10 pasos';
+        else if (totalAcciones < 500) intervalo = '25 pasos';
+        else if (totalAcciones < 2000) intervalo = '100 pasos';
+        else if (totalAcciones < 10000) intervalo = '500 pasos';
+        else intervalo = '1000 pasos';
+
+        const trace = {
+            x: pasos,
+            y: precisiones,
+            type: 'scatter',
+            mode: 'lines+markers',
+            name: 'Precisión',
+            line: { color: '#5a7d9a', width: 2 },
+            marker: { color: '#5a7d9a', size: 5 },
+            hovertemplate: 'Paso %{x}: %{y:.1f}%<extra></extra>'
+        };
+
+        const layout = {
+            title: {
+                text: 'Evolución de la Precisión (cada ' + intervalo + ')',
+                font: { color: '#cccccc', size: 14 }
+            },
+            xaxis: {
+                title: { text: 'Paso', font: { color: '#888888' } },
+                color: '#888888',
+                gridcolor: '#333333',
+                zerolinecolor: '#333333'
+            },
+            yaxis: {
+                title: { text: 'Precisión (%)', font: { color: '#888888' } },
+                color: '#888888',
+                gridcolor: '#333333',
+                zerolinecolor: '#333333',
+                range: [0, 100],
+                dtick: 10
+            },
+            paper_bgcolor: '#242424',
+            plot_bgcolor: '#1a1a1a',
+            font: { color: '#888888' },
+            margin: { l: 60, r: 20, t: 50, b: 50 },
+            height: 300,
+            showlegend: false
+        };
+
+        Plotly.newPlot('precision-chart', [trace], layout, { responsive: true, displayModeBar: false });
+    })();
+</script>

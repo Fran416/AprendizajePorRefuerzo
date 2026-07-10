@@ -1,0 +1,42 @@
+<div class="sensor-grid">
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <span class="sensor-name">🌡️ Temperatura</span>
+            <span class="sensor-value">{{ temperatura }}</span>
+        </div>
+        <div class="sensor-bar-bg">
+            <div class="sensor-bar-fill {% if temperatura and temperatura > 0.65 %}peligro{% endif %}" style="width: {{ (temperatura or 0) * 100 }}%"></div>
+        </div>
+    </div>
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <span class="sensor-name">📳 Vibración</span>
+            <span class="sensor-value">{{ vibracion }}</span>
+        </div>
+        <div class="sensor-bar-bg">
+            <div class="sensor-bar-fill {% if vibracion and vibracion > 0.55 %}peligro{% endif %}" style="width: {{ (vibracion or 0) * 100 }}%"></div>
+        </div>
+    </div>
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <span class="sensor-name">⏲️ Presión</span>
+            <span class="sensor-value">{{ presion }}</span>
+        </div>
+        <div class="sensor-bar-bg">
+            <div class="sensor-bar-fill {% if presion and presion > 0.60 %}peligro{% endif %}" style="width: {{ (presion or 0) * 100 }}%"></div>
+        </div>
+    </div>
+    <div class="sensor-card">
+        <div class="sensor-header">
+            <span class="sensor-name">🔄 RPM</span>
+            <span class="sensor-value">{{ rpm }}</span>
+        </div>
+        <div class="sensor-bar-bg">
+            <div class="sensor-bar-fill {% if rpm and rpm > 0.70 %}peligro{% endif %}" style="width: {{ (rpm or 0) * 100 }}%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="estado-indicator {{ 'normal' if etiqueta_real == 0 else 'anomalo' }}" style="margin-top: 1rem;">
+    {{ estado_texto or 'Normal' }}{% if tipo_anomalia and tipo_anomalia != '—' %} — {{ tipo_anomalia }}{% endif %}
+</div>

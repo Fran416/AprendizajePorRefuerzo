@@ -1,0 +1,74 @@
+<div class="chart-container">
+    <h2>Matriz de Confusión</h2>
+    <div id="confusion-matrix" class="chart-area" style="height:320px;"></div>
+</div>
+
+<script>
+    (function() {
+        const tp = {{ tp }};
+        const tn = {{ tn }};
+        const fp = {{ fp }};
+        const fn = {{ fn }};
+        const total = tp + tn + fp + fn;
+        const accuracy = total > 0 ? ((tp + tn) / total * 100).toFixed(1) : "0.0";
+        const aciertos = tp + tn;
+
+        const data = [{
+            z: [[0, 1], [2, 3]],
+            x: ['Predicho Normal', 'Predicho Anómalo'],
+            y: ['Real Normal', 'Real Anómalo'],
+            text: [
+                [
+                    'Verdadero Normal<br><span style="font-size:1.4rem;font-weight:700;">' + tn.toLocaleString() + '</span>',
+                    'Falsa Alarma<br><span style="font-size:1.4rem;font-weight:700;">' + fp.toLocaleString() + '</span>'
+                ],
+                [
+                    'Anomalía no Detectada<br><span style="font-size:1.4rem;font-weight:700;">' + fn.toLocaleString() + '</span>',
+                    'Anomalía Detectada<br><span style="font-size:1.4rem;font-weight:700;">' + tp.toLocaleString() + '</span>'
+                ]
+            ],
+            texttemplate: '<span style="font-size:0.85rem;">%{text}</span>',
+            hovertemplate: '%{text}<br>Valor: %{z}<extra></extra>',
+            type: 'heatmap',
+            colorscale: [
+                [0, '#4a7a5a'], [0.249, '#4a7a5a'],
+                [0.25, '#8a7a3a'], [0.499, '#8a7a3a'],
+                [0.5, '#7a4a4a'], [0.749, '#7a4a4a'],
+                [0.75, '#3a5a7a'], [1, '#3a5a7a']
+            ],
+            showscale: false,
+            xgap: 4,
+            ygap: 4
+        }];
+
+        const layout = {
+            annotations: [
+                {
+                    text: '<b>Precisión Global:</b> ' + accuracy + '%  (' + aciertos.toLocaleString() + '/' + total.toLocaleString() + ' aciertos)',
+                    showarrow: false,
+                    x: 0.5, y: -0.3,
+                    xref: 'paper', yref: 'paper',
+                    font: { color: '#cccccc', size: 13 },
+                    xanchor: 'center'
+                }
+            ],
+            xaxis: {
+                title: { text: 'Predicción del Agente', font: { color: '#888888', size: 12 } },
+                tickfont: { color: '#cccccc', size: 12 },
+                gridcolor: '#333333'
+            },
+            yaxis: {
+                title: { text: 'Realidad', font: { color: '#888888', size: 12 } },
+                tickfont: { color: '#cccccc', size: 12 },
+                gridcolor: '#333333'
+            },
+            paper_bgcolor: '#242424',
+            plot_bgcolor: '#242424',
+            font: { color: '#cccccc' },
+            margin: { l: 90, r: 30, t: 30, b: 80 },
+            height: 320
+        };
+
+        Plotly.newPlot('confusion-matrix', data, layout, { responsive: true });
+    })();
+</script>

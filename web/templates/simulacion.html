@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Simulación - RL Detección de Anomalías{% endblock %}
+{% block content %}
+<h1 class="page-title">Simulación Interactiva</h1>
+<p class="page-subtitle">Entrena al agente paso a paso o por lotes y observa cómo aprende a detectar anomalías.</p>
+
+<div class="btn-group">
+    <button class="btn btn-primary"
+            hx-post="/api/ejecutar-paso"
+            hx-target="#panel-metricas"
+            hx-swap="innerHTML"
+            hx-indicator="#loading">
+        ▶ Ejecutar un Paso
+    </button>
+
+    <button class="btn btn-secondary"
+            hx-post="/api/entrenar"
+            hx-target="#panel-metricas"
+            hx-swap="innerHTML"
+            hx-indicator="#loading"
+            hx-include="#num-episodios">
+        ⚡ Entrenar
+    </button>
+    <input type="number" id="num-episodios" name="episodios" value="100" min="1" max="5000" class="btn">
+    <button class="btn btn-danger"
+            hx-post="/api/reiniciar"
+            hx-target="#panel-metricas"
+            hx-swap="innerHTML"
+            hx-confirm="¿Estás seguro? Se perderá todo el progreso del agente."
+            hx-indicator="#loading">
+        🔄 Reiniciar
+    </button>
+</div>
+
+<div id="loading" class="htmx-indicator" style="text-align:center;padding:1rem;color:var(--color-texto-tenue);">
+    Procesando...
+</div>
+
+<div id="panel-metricas">
+    {% include "parciales/metricas.html" %}
+</div>
+
+<!-- Sección 2: Estado de la máquina -->
+<div class="section" style="margin-top:2rem;">
+    <h2 class="section-title">Estado de la Máquina</h2>
+    <div hx-get="/api/sensores" hx-trigger="every:2s" hx-target="#panel-sensores" hx-swap="innerHTML">
+        <div id="panel-sensores">
+            {% include "parciales/panel_sensores.html" %}
+        </div>
+    </div>
+</div>
+
+<!-- Sección 3: Gráfico de precisión -->
+<div class="section" style="margin-top:2rem;">
+    <div hx-get="/api/grafico-precision" hx-trigger="load, every:5s, actualizar-precision from:body, reiniciado from:body" hx-target="#panel-precision" hx-swap="innerHTML">
+        <div id="panel-precision"></div>
+    </div>
+</div>
+{% endblock %}

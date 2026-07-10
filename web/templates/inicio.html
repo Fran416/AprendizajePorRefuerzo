@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Inicio - RL Detección de Anomalías{% endblock %}
+{% block content %}
+
+<!-- ===== SECCIÓN 1: HERO ===== -->
+<section class="hero">
+    <h1>Aprendizaje por Refuerzo</h1>
+    <h2>Detección de Anomalías en Sistemas Industriales</h2>
+    <p>Este proyecto demuestra cómo un agente de Q-learning puede aprender a detectar anomalías en sensores de una máquina industrial mediante prueba y error, sin necesidad de datos etiquetados previamente. El agente interactúa con un entorno simulado, recibe recompensas según sus aciertos y errores, y mejora progresivamente su capacidad de clasificación.</p>
+    <a href="/simulacion" class="btn btn-primary">Comenzar Simulación</a>
+</section>
+
+<!-- ===== SECCIÓN 2: ¿QUÉ ES EL APRENDIZAJE POR REFUERZO? ===== -->
+<section class="section">
+    <h2 class="section-title">¿Qué es el Aprendizaje por Refuerzo?</h2>
+    <div class="section-content">
+        <p>El Aprendizaje por Refuerzo (<em>Reinforcement Learning</em>, RL) es una rama del aprendizaje automático en la que un agente aprende a tomar decisiones interactuando con un entorno. A diferencia del aprendizaje supervisado —que requiere ejemplos etiquetados— y del aprendizaje no supervisado —que busca patrones ocultos—, el RL se basa en el principio de aprender de la consecuencia de las propias acciones. Cada decisión produce una recompensa o un castigo, y el agente ajusta su comportamiento para maximizar la recompensa acumulada a largo plazo.</p>
+    </div>
+
+    <!-- Diagrama visual del ciclo Agente-Entorno (CSS puro) -->
+    <div class="rl-diagram">
+        <div class="rl-diagram-item" style="--diagram-color: var(--color-accento);">
+            <div class="rl-diagram-circle">📊</div>
+            <span class="rl-diagram-label">Estado</span>
+            <span class="rl-diagram-desc">Lectura de sensores</span>
+        </div>
+        <div class="rl-diagram-arrow">→</div>
+        <div class="rl-diagram-item" style="--diagram-color: var(--color-exito);">
+            <div class="rl-diagram-circle">🤖</div>
+            <span class="rl-diagram-label">Agente</span>
+            <span class="rl-diagram-desc">Toma decisiones</span>
+        </div>
+        <div class="rl-diagram-arrow">→</div>
+        <div class="rl-diagram-item" style="--diagram-color: var(--color-advertencia);">
+            <div class="rl-diagram-circle">⚡</div>
+            <span class="rl-diagram-label">Acción</span>
+            <span class="rl-diagram-desc">Normal / Anómalo</span>
+        </div>
+        <div class="rl-diagram-arrow">→</div>
+        <div class="rl-diagram-item" style="--diagram-color: var(--color-peligro);">
+            <div class="rl-diagram-circle">🌐</div>
+            <span class="rl-diagram-label">Entorno</span>
+            <span class="rl-diagram-desc">Máquina industrial</span>
+        </div>
+        <div class="rl-diagram-arrow rl-diagram-arrow-feedback">←</div>
+        <div class="rl-diagram-item rl-diagram-item-feedback" style="--diagram-color: var(--color-advertencia);">
+            <div class="rl-diagram-circle">🏆</div>
+            <span class="rl-diagram-label">Recompensa</span>
+            <span class="rl-diagram-desc">+10, +1, -5, -20</span>
+        </div>
+    </div>
+
+    <!-- Grid de 4 elementos clave -->
+    <div class="elementos-grid">
+        <div class="concepto-card">
+            <div class="concepto-icon">🤖</div>
+            <h3>Agente</h3>
+            <p>Entidad que aprende y toma decisiones basadas en la experiencia.</p>
+        </div>
+        <div class="concepto-card">
+            <div class="concepto-icon">🌐</div>
+            <h3>Entorno</h3>
+            <p>Sistema externo con el que el agente interactúa y aprende.</p>
+        </div>
+        <div class="concepto-card">
+            <div class="concepto-icon">⚡</div>
+            <h3>Acción</h3>
+            <p>Decisión que el agente ejecuta para modificar o clasificar el estado.</p>
+        </div>
+        <div class="concepto-card">
+            <div class="concepto-icon">🏆</div>
+            <h3>Recompensa</h3>
+            <p>Señal numérica que guía el aprendizaje hacia el comportamiento óptimo.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECCIÓN 3: ¿CÓMO FUNCIONA EN ESTE PROYECTO? ===== -->
+<section class="section">
+    <h2 class="section-title">¿Cómo funciona en este proyecto?</h2>
+    <div class="section-content">
+        <p>El sistema sigue un flujo iterativo de cuatro pasos que se repite durante el entrenamiento. Cada episodio representa una interacción completa del agente con el entorno simulado.</p>
+    </div>
+
+    <div class="steps-grid">
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <h3 class="step-title">Observar el estado</h3>
+            <p class="step-desc">El agente recibe las lecturas de los cuatro sensores (temperatura, vibración, presión, RPM) que definen el estado actual de la máquina.</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <h3 class="step-title">Seleccionar una acción</h3>
+            <p class="step-desc">Con la política ε-greedy, el agente decide si el estado es normal (0) o anómalo (1), balanceando exploración y explotación.</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <h3 class="step-title">Recibir recompensa</h3>
+            <p class="step-desc">El entorno evalúa la decisión y entrega una recompensa según la matriz de confusión: TP=+10, TN=+1, FP=-5, FN=-20.</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number">4</div>
+            <h3 class="step-title">Actualizar conocimiento</h3>
+            <p class="step-desc">El agente aplica la ecuación de Bellman para actualizar su tabla Q, refinando su política para episodios futuros.</p>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SECCIÓN 4: EXPLORA EL PROYECTO ===== -->
+<section class="section">
+    <h2 class="section-title">Explora el proyecto</h2>
+    <div class="explore-grid">
+        <div class="explore-card">
+            <div class="explore-icon">📚</div>
+            <h3>Conceptos</h3>
+            <p>Diccionario visual completo con definiciones, ejemplos del proyecto y datos curiosos de cada concepto fundamental de RL.</p>
+            <a href="/conceptos" class="explore-link">Ver más →</a>
+        </div>
+        <div class="explore-card">
+            <div class="explore-icon">🎮</div>
+            <h3>Simulación</h3>
+            <p>Entrena el agente paso a paso, observa cómo aprende en tiempo real y ajusta los parámetros del algoritmo de Q-learning.</p>
+            <a href="/simulacion" class="explore-link">Ver más →</a>
+        </div>
+        <div class="explore-card">
+            <div class="explore-icon">📊</div>
+            <h3>Visualizaciones</h3>
+            <p>Gráficos interactivos que muestran la curva de aprendizaje, la matriz de confusión y el mapa de calor de la tabla Q.</p>
+            <a href="/visualizaciones" class="explore-link">Ver más →</a>
+        </div>
+        <div class="explore-card">
+            <div class="explore-icon">📖</div>
+            <h3>Referencias</h3>
+            <p>Bibliografía, recursos adicionales y conclusiones del proyecto sobre la aplicación de RL a la detección de anomalías.</p>
+            <a href="/referencias" class="explore-link">Ver más →</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
